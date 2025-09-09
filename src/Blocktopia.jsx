@@ -10,9 +10,11 @@ import {
   ChevronUp,
   ExternalLink,
   Moon,
-  Sun,
+  Flame,
   Filter,
   Sparkles,
+  Check,
+  ChevronsUpDown,
 } from "lucide-react";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
@@ -34,7 +36,23 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import items from "./data/items";
+import categories from "./data/categories";
+import rarityColors from "./data/rarityColors";
 import { Highlighter } from "./components/magicui/highlighter";
+import { cn } from "./lib/utils";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "./components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "./components/ui/popover";
 
 const BlocktopiaWiki = () => {
   const [selectedItem, setSelectedItem] = useState(null);
@@ -49,6 +67,8 @@ const BlocktopiaWiki = () => {
   });
   const [filter, setFilter] = useState("all");
   const [darkMode, setDarkMode] = useState(true);
+  const [open, setOpen] = React.useState(false);
+  const [value, setValue] = useState("all");
 
   // Apply dark mode to document
   useEffect(() => {
@@ -59,33 +79,30 @@ const BlocktopiaWiki = () => {
     }
   }, [darkMode]);
 
-  const rarityColors = {
-    Basic:
-      "bg-neutral-200 text-neutral-800 border-neutral-300 dark:bg-neutral-800 dark:text-neutral-200 dark:border-neutral-700",
+  function getRarityColor(rarity) {
+    const thresholds = Object.keys(rarityColors)
+      .map(Number)
+      .sort((a, b) => a - b);
 
-    Uncommon:
-      "bg-lime-200 text-lime-800 border-lime-300 dark:bg-lime-800 dark:text-lime-200 dark:border-lime-700",
-
-    Farmable:
-      "bg-sky-200 text-sky-800 border-sky-300 dark:bg-sky-800 dark:text-sky-200 dark:border-sky-700",
-
-    Rare: "bg-indigo-200 text-indigo-800 border-indigo-300 dark:bg-indigo-800 dark:text-indigo-200 dark:border-indigo-700",
-
-    Epic: "bg-fuchsia-200 text-fuchsia-800 border-fuchsia-300 dark:bg-fuchsia-800 dark:text-fuchsia-200 dark:border-fuchsia-700",
-
-    Legendary:
-      "bg-amber-200 text-amber-800 border-amber-300 dark:bg-amber-800 dark:text-amber-200 dark:border-amber-700",
-
-    Currency:
-      "bg-cyan-200 text-cyan-800 border-cyan-300 dark:bg-cyan-800 dark:text-cyan-200 dark:border-cyan-700",
-  };
+    for (let t of thresholds) {
+      if (rarity <= t) return rarityColors[t];
+    }
+    return rarityColors[thresholds[thresholds.length - 1]];
+  }
 
   const filteredItems = items.filter((item) => {
+    // ✅ Search check (by name OR description)
     const matchesSearch =
+      !searchQuery || // if searchQuery is empty, match everything
       item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.description.toLowerCase().includes(searchQuery.toLowerCase());
+
+    // ✅ Category check (all or exact type)
     const matchesFilter =
-      filter === "all" || item.type.toLowerCase() === filter.toLowerCase();
+      value === "" || value === "all"
+        ? true
+        : item.type.toLowerCase() === value.toLowerCase();
+
     return matchesSearch && matchesFilter;
   });
 
@@ -146,39 +163,63 @@ const BlocktopiaWiki = () => {
                 </div>
 
                 <div>
-                  <Label className="text-sm font-medium mb-3 block">
-                    Filter by Type
-                  </Label>
-                  <div className="flex flex-wrap gap-2">
-                    {[
-                      "all",
-                      "seed",
-                      "tool",
-                      "block",
-                      "lock",
-                      "furniture",
-                      "clothing",
-                      "consumable",
-                      "event",
-                    ].map((type) => (
+                  <Popover open={open} onOpenChange={setOpen}>
+                    <PopoverTrigger asChild>
                       <Button
-                        key={type}
-                        variant={filter === type ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => setFilter(type)}
-                        className="text-xs"
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={open}
+                        className="w-[200px] justify-between"
                       >
-                        {type.charAt(0).toUpperCase() + type.slice(1)}
+                        {categories.find((c) => c.value === value)?.label}
+                        <ChevronsUpDown className="opacity-50" />
                       </Button>
-                    ))}
-                  </div>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[200px] p-0">
+                      <Command>
+                        {/* ✅ this search only searches categories, not items */}
+                        <CommandInput
+                        
+                          placeholder="Search category..."
+                          className="h-9"
+                          
+                        />
+                        <CommandList>
+                          <CommandEmpty>No category found.</CommandEmpty>
+                          <CommandGroup>
+                            {categories.map((cat) => (
+                              <CommandItem
+                                key={cat.value}
+                                value={cat.value}
+                                onSelect={(currentValue) => {
+                                  setValue(currentValue);
+                                  setOpen(false);
+                                }}
+                              >
+                                {cat.label}
+                                <Check
+                                  className={cn(
+                                    "ml-auto",
+                                    value === cat.value
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                 </div>
 
                 <div>
-                  <Label className="text-sm font-medium mb-3 block">
+                  <Label className="text-sm font-medium mb-3 block ">
                     Items ({filteredItems.length})
                   </Label>
-                  <ScrollArea className="h-[400px]">
+
+                  <ScrollArea className="h-[400px] mt-4">
                     <div className="space-y-2">
                       {filteredItems.map((item) => (
                         <Card
@@ -199,9 +240,9 @@ const BlocktopiaWiki = () => {
                                 </div>
                                 <Badge
                                   variant="outline"
-                                  className={`text-xs ${
-                                    rarityColors[item.rarity]
-                                  }`}
+                                  className={`text-xs ${getRarityColor(
+                                    item.rarity
+                                  )}`}
                                 >
                                   {item.rarity}
                                 </Badge>
@@ -247,8 +288,8 @@ const BlocktopiaWiki = () => {
                                 rarityColors[selectedItem.rarity]
                               } border`}
                             >
-                              <Sparkles className="h-3 w-3 mr-1" />
-                              {selectedItem.rarity}
+                              <Flame className="h-3 w-3 mr-1" />
+                              Rarity of {selectedItem.rarity}
                             </Badge>
                             <Badge variant="secondary">
                               {selectedItem.type}
@@ -327,9 +368,10 @@ const BlocktopiaWiki = () => {
 
                       {/* Title */}
                       <CardTitle className="text-3xl font-bold mb-4">
-                        Welcome to <Highlighter action="underline" color="#03A9F4">
-    Blocktopia Wiki
-  </Highlighter>
+                        Welcome to{" "}
+                        <Highlighter action="underline" color="#03A9F4">
+                          Blocktopia Wiki
+                        </Highlighter>
                       </CardTitle>
 
                       {/* Playful tagline */}

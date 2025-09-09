@@ -1,5 +1,6 @@
 import React from 'react'
 import { AnimatedThemeToggler } from "../components/magicui/animated-theme-toggler";
+import { AuroraText } from "../components/magicui/aurora-text";
 
 const Header = ({ items, darkMode, setDarkMode }) => {
   return (
@@ -11,7 +12,7 @@ const Header = ({ items, darkMode, setDarkMode }) => {
 
           <div>
             <h1 className="text-2xl font-bold ">
-              Blocktopia Wiki
+              <AuroraText>Blocktopia</AuroraText> Wiki
             </h1>
             <p className="text-sm text-muted-foreground hidden sm:block">
               The Ultimate Player’s Handbook for Blocktopia
