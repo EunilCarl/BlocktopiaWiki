@@ -53,6 +53,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "./components/ui/popover";
+import { DotPattern } from "./components/magicui/dot-pattern";
 
 const BlocktopiaWiki = () => {
   const [selectedItem, setSelectedItem] = useState(null);
@@ -181,6 +182,7 @@ const BlocktopiaWiki = () => {
                         <CommandInput
                         
                           placeholder="Search category..."
+
                           className="h-9"
                           
                         />
@@ -270,12 +272,24 @@ const BlocktopiaWiki = () => {
                 {selectedItem ? (
                   <Card className="overflow-hidden">
                     {/* Item Header */}
-                    <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 sm:p-8 text-white">
+                    <div className="relative flex size-full items-center overflow-hidden rounded-lg border bg-background p-10">
+                                 <DotPattern
+        width={15}
+        height={20}
+        cx={1}
+        cy={1}
+        cr={1}
+        className={cn(
+          "[mask-image:linear-gradient(to_bottom_right,white,transparent,transparent)] ",
+        )}
+      />
                       <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-4 sm:space-y-0">
                         {/* Item Image */}
-                        <div className="flex-shrink-0 text-5xl sm:text-6xl bg-white/20 rounded-2xl p-4 backdrop-blur flex items-center justify-center">
+                        
+                        <div className="flex-shrink-0 text-5xl sm:text-6xl bg-white/20 rounded-xl p-4 backdrop-blur shadow-md flex items-center justify-center">
                           {selectedItem.image}
                         </div>
+              
 
                         {/* Item Info */}
                         <div className="flex-1">
