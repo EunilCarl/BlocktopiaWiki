@@ -1,13 +1,15 @@
 import React from 'react'
 import { Sun, Moon } from 'lucide-react'
-import { Switch } from './components/ui/switch'
+import { Switch } from './ui/switch'
 
 const Header = ({ items, darkMode, setDarkMode }) => {
   return (
     <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center space-x-4">
-          <div className="text-3xl">🏗️</div>
+          {/* Logo */}
+          <img src="/logo.png" alt="Blocktopia Logo" className="h-10 w-10" />
+
           <div>
             <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
               Blocktopia Wiki

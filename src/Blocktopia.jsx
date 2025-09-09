@@ -11,7 +11,8 @@ import { Separator } from './components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from './components/ui/avatar';
 import { ScrollArea } from './components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs';
-import Header from './Header';
+import Header from './components/Header';
+import Footer from './components/Footer';
 
 const BlocktopiaWiki = () => {
   const [selectedItem, setSelectedItem] = useState(null);
@@ -160,7 +161,7 @@ const BlocktopiaWiki = () => {
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Sidebar */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 order-2 lg:order-1">
             <Card className="sticky top-24">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -232,7 +233,7 @@ const BlocktopiaWiki = () => {
           </div>
 
           {/* Main Content */}
-          <div className="lg:col-span-3">
+          <div className="lg:col-span-3 order-1 lg:order-2">
             <Tabs defaultValue="item-details" className="w-full">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="item-details">Item Details</TabsTrigger>
@@ -305,7 +306,7 @@ const BlocktopiaWiki = () => {
                 ) : (
                   <Card className="text-center">
                     <CardContent className="p-12">
-                      <div className="text-6xl mb-4">🏗️</div>
+                      <img src="/logo.png" alt="Blocktopia Logo" className="h-15 w-15 mb-4 mx-auto" />
                       <CardTitle className="text-2xl mb-4">Welcome to Blocktopia Wiki</CardTitle>
                       <CardDescription className="mb-6">
                         Select an item from the sidebar to view detailed information about seeds, tools, and blocks.
@@ -431,55 +432,7 @@ const BlocktopiaWiki = () => {
       </div>
 
       {/* Footer */}
-      <footer className="border-t bg-muted/50 mt-16">
-  <div className="container mx-auto px-4 py-8 text-center">
-    <div className="flex items-center justify-center space-x-2 mb-4">
-      <div className="text-2xl">🏗️</div>
-      <span className="text-xl font-bold">Blocktopia Wiki</span>
-    </div>
-
-    {/* Tagline */}
-    <p className="text-muted-foreground mb-2">
-      The Ultimate Guide to Building, Trading, and Exploring Blocktopia
-    </p>
-
-    {/* About/Description */}
-    <p className="text-sm text-muted-foreground max-w-2xl mx-auto mb-6">
-      Blocktopia Wiki is a community-driven knowledge hub designed to help
-      players master the game. From crafting recipes and trading tips to
-      building strategies and world secrets, this is your one-stop source
-      for everything Blocktopia.
-    </p>
-
-    {/* Links */}
-    <div className="flex justify-center space-x-6 mb-6">
-      <Button variant="ghost" size="sm" asChild>
-        <a
-          href="https://www.roblox.com/games/125532882925319/Blocktopia"
-          className="flex items-center space-x-1"
-        >
-          <ExternalLink size={16} />
-          <span>Official Game</span>
-        </a>
-      </Button>
-      <Button variant="ghost" size="sm">
-        <a
-          href="https://discord.com/invite/e76rHFMrdT"
-          className="flex items-center space-x-1"
-        >
-          <MessageSquare size={16} className="mr-2" />
-          Discord
-        </a>
-      </Button>
-    </div>
-
-    {/* Credits */}
-    <p className="text-xs text-muted-foreground">
-      Made with ❤️ by <span className="font-semibold">Eunil</span> ·
-      Community Wiki Project
-    </p>
-  </div>
-</footer>
+      <Footer></Footer>
 
     </div>
   );
