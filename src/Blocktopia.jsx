@@ -54,18 +54,11 @@ import {
   PopoverTrigger,
 } from "./components/ui/popover";
 import { DotPattern } from "./components/magicui/dot-pattern";
+import CommunityThreads from "./components/CommunityThreads";
 
 const BlocktopiaWiki = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [threads, setThreads] = useState([]);
-  const [showThreadForm, setShowThreadForm] = useState(false);
-  const [expandedThreads, setExpandedThreads] = useState(new Set());
-  const [newThread, setNewThread] = useState({
-    title: "",
-    content: "",
-    author: "",
-  });
   const [filter, setFilter] = useState("all");
   const [darkMode, setDarkMode] = useState(true);
   const [open, setOpen] = React.useState(false);
@@ -107,31 +100,9 @@ const BlocktopiaWiki = () => {
     return matchesSearch && matchesFilter;
   });
 
-  const addThread = () => {
-    if (newThread.title && newThread.content && newThread.author) {
-      const thread = {
-        id: Date.now(),
-        title: newThread.title,
-        content: newThread.content,
-        author: newThread.author,
-        date: new Date().toLocaleDateString(),
-        replies: [],
-      };
-      setThreads([thread, ...threads]);
-      setNewThread({ title: "", content: "", author: "" });
-      setShowThreadForm(false);
-    }
-  };
 
-  const toggleThread = (threadId) => {
-    const newExpanded = new Set(expandedThreads);
-    if (newExpanded.has(threadId)) {
-      newExpanded.delete(threadId);
-    } else {
-      newExpanded.add(threadId);
-    }
-    setExpandedThreads(newExpanded);
-  };
+
+
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -419,7 +390,7 @@ const BlocktopiaWiki = () => {
 
               <TabsContent value="community">
                 {/* Community Threads */}
-                <Card>
+                {/* <Card>
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
@@ -542,7 +513,10 @@ const BlocktopiaWiki = () => {
                       </div>
                     )}
                   </CardContent>
-                </Card>
+                </Card> */}
+
+
+                <CommunityThreads />
               </TabsContent>
             </Tabs>
           </div>
