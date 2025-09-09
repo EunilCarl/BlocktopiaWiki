@@ -13,6 +13,8 @@ import { ScrollArea } from './components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './components/ui/tabs';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import items from './data/items';
+
 
 const BlocktopiaWiki = () => {
   const [selectedItem, setSelectedItem] = useState(null);
@@ -33,90 +35,24 @@ const BlocktopiaWiki = () => {
     }
   }, [darkMode]);
 
-  // Sample item database
-  const items = [
-    {
-      id: 1,
-      name: 'Diamond Seed',
-      rarity: 'Legendary',
-      type: 'Seed',
-      description: 'An extremely rare seed that produces valuable diamonds. Takes 7 days to grow and requires perfect conditions.',
-      splicing: 'Rock Seed + Crystal Seed',
-      growTime: '7 days',
-      image: '💎',
-      value: 50000,
-      properties: ['Valuable', 'Slow Growth', 'Requires Water']
-    },
-    {
-      id: 2,
-      name: 'Fire Seed',
-      rarity: 'Epic',
-      type: 'Seed',
-      description: 'A hot seed that grows into fire blocks. Provides warmth and light to surrounding areas.',
-      splicing: 'Lava Seed + Coal Seed',
-      growTime: '3 days',
-      image: '🔥',
-      value: 15000,
-      properties: ['Heat Source', 'Light Source', 'Dangerous']
-    },
-    {
-      id: 3,
-      name: 'Rainbow Tree Seed',
-      rarity: 'Mythical',
-      type: 'Seed',
-      description: 'The rarest seed in Blocktopia. Grows into a magnificent rainbow tree that changes colors.',
-      splicing: 'Diamond Seed + Magic Seed + Rainbow Essence',
-      growTime: '14 days',
-      image: '🌈',
-      value: 100000,
-      properties: ['Color Changing', 'Magical', 'Extremely Rare']
-    },
-    {
-      id: 4,
-      name: 'Golden Pickaxe',
-      rarity: 'Rare',
-      type: 'Tool',
-      description: 'A powerful mining tool that increases mining speed by 200%. Durable and efficient.',
-      splicing: 'Not applicable - Crafted item',
-      growTime: 'N/A',
-      image: '⛏️',
-      value: 8000,
-      properties: ['Mining Tool', 'Durable', 'Speed Boost']
-    },
-    {
-      id: 5,
-      name: 'Ice Crystal',
-      rarity: 'Uncommon',
-      type: 'Block',
-      description: 'A beautiful ice crystal that never melts. Can be used for decoration or cooling systems.',
-      splicing: 'Ice Seed + Crystal Dust',
-      growTime: '2 days',
-      image: '❄️',
-      value: 2500,
-      properties: ['Never Melts', 'Decorative', 'Cooling Effect']
-    },
-    {
-      id: 6,
-      name: 'Magic Wand',
-      rarity: 'Epic',
-      type: 'Tool',
-      description: 'A mystical wand that allows players to cast spells and manipulate blocks from a distance.',
-      splicing: 'Magic Seed + Crystal Staff + Stardust',
-      growTime: 'N/A',
-      image: '🪄',
-      value: 25000,
-      properties: ['Magic Tool', 'Remote Control', 'Spell Casting']
-    }
-  ];
+const rarityColors = {
+  Basic: "bg-neutral-200 text-neutral-800 border-neutral-300 dark:bg-neutral-800 dark:text-neutral-200 dark:border-neutral-700", 
 
-  const rarityColors = {
-    'Common': 'bg-gray-500/20 text-gray-300 border-gray-500/30',
-    'Uncommon': 'bg-green-500/20 text-green-300 border-green-500/30',
-    'Rare': 'bg-blue-500/20 text-blue-300 border-blue-500/30',
-    'Epic': 'bg-purple-500/20 text-purple-300 border-purple-500/30',
-    'Legendary': 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
-    'Mythical': 'bg-pink-500/20 text-pink-300 border-pink-500/30'
-  };
+  Uncommon: "bg-lime-200 text-lime-800 border-lime-300 dark:bg-lime-800 dark:text-lime-200 dark:border-lime-700", 
+
+  Farmable: "bg-sky-200 text-sky-800 border-sky-300 dark:bg-sky-800 dark:text-sky-200 dark:border-sky-700", 
+
+  Rare: "bg-indigo-200 text-indigo-800 border-indigo-300 dark:bg-indigo-800 dark:text-indigo-200 dark:border-indigo-700", 
+
+  Epic: "bg-fuchsia-200 text-fuchsia-800 border-fuchsia-300 dark:bg-fuchsia-800 dark:text-fuchsia-200 dark:border-fuchsia-700", 
+
+  Legendary: "bg-amber-200 text-amber-800 border-amber-300 dark:bg-amber-800 dark:text-amber-200 dark:border-amber-700", 
+
+  Currency: "bg-cyan-200 text-cyan-800 border-cyan-300 dark:bg-cyan-800 dark:text-cyan-200 dark:border-cyan-700" 
+};
+
+
+
 
   const filteredItems = items.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -184,7 +120,7 @@ const BlocktopiaWiki = () => {
                 <div>
                   <Label className="text-sm font-medium mb-3 block">Filter by Type</Label>
                   <div className="flex flex-wrap gap-2">
-                    {['all', 'seed', 'tool', 'block'].map(type => (
+                    {['all', 'seed', 'tool', 'block', 'lock', 'furniture', 'clothing', 'consumable', 'event', ].map(type => (
                       <Button
                         key={type}
                         variant={filter === type ? "default" : "outline"}
@@ -207,12 +143,12 @@ const BlocktopiaWiki = () => {
                           key={item.id}
                           className={`cursor-pointer transition-all hover:shadow-md ${
                             selectedItem?.id === item.id
-                              ? 'ring-2 ring-primary border-primary'
+                              ? 'border-primary border-2'
                               : 'hover:border-primary/50'
                           }`}
                           onClick={() => setSelectedItem(item)}
                         >
-                          <CardContent className="p-3">
+                          <CardContent >
                             <div className="flex items-center space-x-3">
                               <div className="text-2xl">{item.image}</div>
                               <div className="flex-1 min-w-0">
