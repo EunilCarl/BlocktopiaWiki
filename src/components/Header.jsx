@@ -1,6 +1,5 @@
 import React from 'react'
-import { Sun, Moon } from 'lucide-react'
-import { Switch } from './ui/switch'
+import { AnimatedThemeToggler } from "../components/magicui/animated-theme-toggler";
 
 const Header = ({ items, darkMode, setDarkMode }) => {
   return (
@@ -11,7 +10,7 @@ const Header = ({ items, darkMode, setDarkMode }) => {
           <img src="/logo.png" alt="Blocktopia Logo" className="h-10 w-10" />
 
           <div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+            <h1 className="text-2xl font-bold ">
               Blocktopia Wiki
             </h1>
             <p className="text-sm text-muted-foreground hidden sm:block">
@@ -24,9 +23,7 @@ const Header = ({ items, darkMode, setDarkMode }) => {
             {items.length} items catalogued
           </div>
           <div className="flex items-center space-x-2">
-            <Sun className="h-4 w-4" />
-            <Switch checked={darkMode} onCheckedChange={setDarkMode} />
-            <Moon className="h-4 w-4" />
+            <AnimatedThemeToggler />
           </div>
         </div>
       </div>
