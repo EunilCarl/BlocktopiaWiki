@@ -138,21 +138,28 @@ const CommunityThreads = () => {
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <MessageSquare className="text-primary" size={24} />
-            <div>
-              <CardTitle>Community Suggestions & Feedback</CardTitle>
-              <CardDescription>
-                Share your ideas and feedback with the community
-              </CardDescription>
-            </div>
-          </div>
-          <Button onClick={() => setShowThreadForm(!showThreadForm)}>
-            <Plus className="h-4 w-4 mr-2" /> New Thread
-          </Button>
-        </div>
-      </CardHeader>
+  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="flex items-center space-x-3">
+      <MessageSquare className="text-primary" size={24} />
+      <div>
+        <CardTitle className="text-base sm:text-lg">
+          Community Suggestions & Feedback
+        </CardTitle>
+        <CardDescription className="text-sm">
+          Share your ideas and feedback with the community
+        </CardDescription>
+      </div>
+    </div>
+
+    <Button
+      onClick={() => setShowThreadForm(!showThreadForm)}
+      className="self-start sm:self-auto"
+    >
+      <Plus className="h-4 w-4 mr-2" /> New Thread
+    </Button>
+  </div>
+</CardHeader>
+
 
       {showThreadForm && (
         <CardContent className="border-t bg-muted/50 p-8">
@@ -178,10 +185,12 @@ const CommunityThreads = () => {
                 setNewThread({ ...newThread, content: e.target.value })
               }
             />
+            <div className="recaptcha-container">
             <ReCAPTCHA
               sitekey="6LcSysMrAAAAAHryuNdoVO42_hHMrxx5UUmsWO0b"
               onChange={onCaptchaChange}
             />
+            </div>
 
             {errorMessage && (
               <p className="text-red-500 font-medium">{errorMessage}</p>

@@ -52,6 +52,33 @@ const Footer = () => {
       Made with ❤️ by <a className="font-semibold" href='https://github.com/EunilCarl'>Eunil</a> ·
       Community Wiki Project
     </p>
+
+     {/* Contribution Note */}
+<p className="text-xs text-muted-foreground mt-2">
+  Like the project? If you want to contribute, DM me on Discord!
+</p>
+<div className="flex items-center justify-center mt-2">
+  <Button
+    variant="secondary"
+    size="sm"
+    asChild
+    className="space-x-1 text-xs"
+  >
+    <a
+      href="https://discord.com/users/748175690297376880"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <img
+        src="https://cdn.worldvectorlogo.com/logos/discord-6.svg"
+        alt="Discord Logo"
+        className="h-3.5 w-3.5"
+      />
+      <span>3unil</span>
+    </a>
+  </Button>
+</div>
+
   </div>
 </footer>
   )
