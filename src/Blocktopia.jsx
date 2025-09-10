@@ -1,21 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  Search,
-  Star,
-  Plus,
-  MessageSquare,
-  User,
-  Calendar,
-  ChevronDown,
-  ChevronUp,
-  ExternalLink,
-  Moon,
-  Flame,
-  Filter,
-  Sparkles,
-  Check,
-  ChevronsUpDown,
-} from "lucide-react";
+import { Search,Star,Plus,MessageSquare,User,Calendar,ChevronDown,ChevronUp,ExternalLink,Moon,Flame,Filter,Sparkles,Check,ChevronsUpDown, } from "lucide-react";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
 import {
@@ -100,10 +84,6 @@ const BlocktopiaWiki = () => {
     return matchesSearch && matchesFilter;
   });
 
-
-
-
-
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header items={items} darkMode={darkMode} setDarkMode={setDarkMode} />
@@ -151,11 +131,8 @@ const BlocktopiaWiki = () => {
                       <Command>
                         {/* ✅ this search only searches categories, not items */}
                         <CommandInput
-                        
                           placeholder="Search category..."
-
                           className="h-9"
-                          
                         />
                         <CommandList>
                           <CommandEmpty>No category found.</CommandEmpty>
@@ -244,23 +221,22 @@ const BlocktopiaWiki = () => {
                   <Card className="overflow-hidden">
                     {/* Item Header */}
                     <div className="relative flex size-full items-center overflow-hidden rounded-lg border bg-background p-10">
-                                 <DotPattern
-        width={15}
-        height={20}
-        cx={1}
-        cy={1}
-        cr={1}
-        className={cn(
-          "[mask-image:linear-gradient(to_bottom_right,white,transparent,transparent)] ",
-        )}
-      />
+                      <DotPattern
+                        width={15}
+                        height={20}
+                        cx={1}
+                        cy={1}
+                        cr={1}
+                        className={cn(
+                          "[mask-image:linear-gradient(to_bottom_right,white,transparent,transparent)] "
+                        )}
+                      />
                       <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-4 sm:space-y-0">
                         {/* Item Image */}
-                        
+
                         <div className="flex-shrink-0 text-5xl sm:text-6xl bg-white/20 rounded-xl p-4 backdrop-blur shadow-md flex items-center justify-center">
                           {selectedItem.image}
                         </div>
-              
 
                         {/* Item Info */}
                         <div className="flex-1">
@@ -387,135 +363,7 @@ const BlocktopiaWiki = () => {
                   </Card>
                 )}
               </TabsContent>
-
               <TabsContent value="community">
-                {/* Community Threads */}
-                {/* <Card>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <MessageSquare className="text-primary" size={24} />
-                        <div>
-                          <CardTitle>
-                            Community Suggestions & Feedback
-                          </CardTitle>
-                          <CardDescription>
-                            Share your ideas and feedback with the community
-                          </CardDescription>
-                        </div>
-                      </div>
-                      <Button
-                        onClick={() => setShowThreadForm(!showThreadForm)}
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        New Thread
-                      </Button>
-                    </div>
-                  </CardHeader>
-
-                  {showThreadForm && (
-                    <CardContent className="border-t bg-muted/50 p-8">
-                      <div className="space-y-4 ">
-                        <Input
-                          placeholder="Thread title..."
-                          value={newThread.title}
-                          onChange={(e) =>
-                            setNewThread({
-                              ...newThread,
-                              title: e.target.value,
-                            })
-                          }
-                        />
-                        <Input
-                          placeholder="Your username..."
-                          value={newThread.author}
-                          onChange={(e) =>
-                            setNewThread({
-                              ...newThread,
-                              author: e.target.value,
-                            })
-                          }
-                        />
-                        <Textarea
-                          placeholder="Share your suggestions or feedback..."
-                          value={newThread.content}
-                          onChange={(e) =>
-                            setNewThread({
-                              ...newThread,
-                              content: e.target.value,
-                            })
-                          }
-                        />
-                        <div className="flex space-x-3">
-                          <Button onClick={addThread}>Post Thread</Button>
-                          <Button
-                            variant="outline"
-                            onClick={() => setShowThreadForm(false)}
-                          >
-                            Cancel
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  )}
-
-                  <CardContent>
-                    {threads.length === 0 ? (
-                      <div className="p-8 text-center">
-                        <MessageSquare className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-                        <p className="text-muted-foreground">
-                          No threads yet. Be the first to share your
-                          suggestions!
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="divide-y">
-                        {threads.map((thread) => (
-                          <div key={thread.id} className="p-6">
-                            <div
-                              className="flex items-center justify-between cursor-pointer hover:bg-muted/50 -m-2 p-2 rounded-lg transition-colors"
-                              onClick={() => toggleThread(thread.id)}
-                            >
-                              <div className="flex items-center space-x-4 flex-1">
-                                <Avatar>
-                                  <AvatarFallback>
-                                    {thread.author.charAt(0).toUpperCase()}
-                                  </AvatarFallback>
-                                </Avatar>
-                                <div className="flex-1">
-                                  <h4 className="font-semibold mb-1">
-                                    {thread.title}
-                                  </h4>
-                                  <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                                    <span>{thread.author}</span>
-                                    <span>{thread.date}</span>
-                                  </div>
-                                </div>
-                              </div>
-                              {expandedThreads.has(thread.id) ? (
-                                <ChevronUp className="h-5 w-5 text-muted-foreground" />
-                              ) : (
-                                <ChevronDown className="h-5 w-5 text-muted-foreground" />
-                              )}
-                            </div>
-
-                            {expandedThreads.has(thread.id) && (
-                              <div className="mt-4 pl-14">
-                                <Card className="bg-muted/30">
-                                  <CardContent className="p-4">
-                                    <p className="text-sm">{thread.content}</p>
-                                  </CardContent>
-                                </Card>
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card> */}
-
-
                 <CommunityThreads />
               </TabsContent>
             </Tabs>
