@@ -2,11 +2,11 @@ const items = [
   {
     id: 1,
     name: 'Dirt',
-    rarity: 'N/A',
+    rarity: '1',
     type: 'Block',
     description: 'The most basic block in BLocktopia. Often used for farming or splicing.',
     splicing: 'N/A',
-    growTime: 'Instant',
+    growTime: '30 seconds',
     image: '🟫',
     value: 1,
     properties: ['Basic Block', 'Splicable', 'Farming Starter']
@@ -14,11 +14,11 @@ const items = [
   {
     id: 2,
     name: 'Cave Background',
-    rarity: 'N/A',
+    rarity: '1',
     type: 'Background',
-    description: 'A simple cave background used to fill in empty spaces.',
+    description: 'Dirt`s biggest friend',
     splicing: 'N/A',
-    growTime: 'Instant',
+    growTime: '30 seconds',
     image: '⬛',
     value: 1,
     properties: ['Background', 'Splicable']
@@ -26,11 +26,11 @@ const items = [
   {
     id: 3,
     name: 'Rock',
-    rarity: 'N/A',
+    rarity: '2',
     type: 'Block',
-    description: 'A hard block found in many worlds. Useful for splicing.',
+    description: 'It`s a Regular Rock!',
     splicing: 'N/A',
-    growTime: 'Instant',
+    growTime: '60 seconds',
     image: '🪨',
     value: 1,
     properties: ['Splicable', 'Basic Material']
@@ -38,11 +38,11 @@ const items = [
   {
     id: 4,
     name: 'Lava',
-    rarity: 'N/A',
+    rarity: '2',
     type: 'Block',
     description: 'Hot molten lava block. Damages players who touch it.',
     splicing: 'N/A',
-    growTime: 'Instant',
+    growTime: '60s',
     image: '🌋',
     value: 20,
     properties: ['Hazardous', 'Decoration']
@@ -54,7 +54,7 @@ const items = [
     type: 'Block',
     description: 'Loose grains of sand. Useful for splicing into other items.',
     splicing: 'Dirt + Cave Background',
-    growTime: '10 minutes',
+    growTime: '60s',
     image: '🏖️',
     value: 2,
     properties: ['Splicable', 'Basic Material']
@@ -66,7 +66,7 @@ const items = [
     type: 'Block',
     description: 'A sturdy block of bricks used for building.',
     splicing: 'Dirt + Rock',
-    growTime: '20 minutes',
+    growTime: '2 minutes',
     image: '🧱',
     value: 5,
     properties: ['Splicable', 'Building Material']
@@ -78,7 +78,7 @@ const items = [
     type: 'Block',
     description: 'Cut wooden block, commonly used for crafting and splicing.',
     splicing: 'Dirt + Lava',
-    growTime: '15 minutes',
+    growTime: '1 minute & 30 seconds',
     image: '🪵',
     value: 3,
     properties: ['Splicable', 'Building Material']
@@ -90,7 +90,7 @@ const items = [
     type: 'Block',
     description: 'Strong metal block used for splicing and structures.',
     splicing: 'Rock + Lava',
-    growTime: '30 minutes',
+    growTime: '2 minutes and 30 seconds',
     image: '⚙️',
     value: 4,
     properties: ['Splicable', 'Strong Material']
@@ -114,7 +114,7 @@ const items = [
     type: 'Hazard',
     description: 'Spiky thorns that damage players on contact.',
     splicing: 'Dirt + Iron',
-    growTime: '1 hour',
+    growTime: '25 minutes',
     image: '🌵',
     value: 11,
     properties: ['Hazardous', 'Splicable']
@@ -162,7 +162,7 @@ const items = [
     type: 'Door',
     description: 'The main entrance door to a world.',
     splicing: 'Iron + Wood',
-    growTime: '40 minutes',
+    growTime: '15 minutes',
     image: '🚪',
     value: 10,
     properties: ['World Access', 'Splicable']
@@ -174,7 +174,7 @@ const items = [
     type: 'Object',
     description: 'A wooden sign used to display text.',
     splicing: 'Iron + Wooden Background',
-    growTime: '45 minutes',
+    growTime: '15 minutes',
     image: '📜',
     value: 7,
     properties: ['Splicable', 'Interactive']
@@ -186,7 +186,7 @@ const items = [
     type: 'Door',
     description: 'A basic door for entering rooms or worlds.',
     splicing: 'Wood + Wooden Background',
-    growTime: '40 minutes',
+    growTime: '15 minutes',
     image: '🚪',
     value: 10,
     properties: ['Splicable', 'Interactive']
@@ -198,7 +198,7 @@ const items = [
     type: 'Block',
     description: 'A transparent block made from sand and fire.',
     splicing: 'Campfire + Sand',
-    growTime: '1 hour',
+    growTime: '30 minutes',
     image: '🪟',
     value: 12,
     properties: ['Splicable', 'Decorative', 'Transparent']
@@ -208,7 +208,7 @@ const items = [
     name: 'For Sale Sign',
     rarity: '23',
     type: 'Best Farmable Of All Time!',
-    description: 'A sign used to sell items. Best farmable in the game.',
+    description: 'Is it For Sale?',
     splicing: 'Sign + Red Block',
     growTime: '2 hours',
     image: '🏷️',
@@ -220,9 +220,9 @@ const items = [
     name: 'Brown Block',
     rarity: '5',
     type: 'Block',
-    description: 'A basic brown-colored block.',
+    description: 'Blocks have different colors!',
     splicing: 'Dirt + Bricks',
-    growTime: '20 minutes',
+    growTime: '4 minutes',
     image: '🟫',
     value: 5,
     properties: ['Splicable', 'Building Material']
@@ -234,7 +234,7 @@ const items = [
     type: 'Block',
     description: 'A vibrant red block.',
     splicing: 'Lava + Bricks',
-    growTime: '30 minutes',
+    growTime: '5 minutes',
     image: '🟥',
     value: 7,
     properties: ['Splicable', 'Building Material']
@@ -246,7 +246,7 @@ const items = [
     type: 'Block',
     description: 'A neutral grey block.',
     splicing: 'Rock + Bricks',
-    growTime: '35 minutes',
+    growTime: '10 minutes',
     image: '⬜',
     value: 9,
     properties: ['Splicable', 'Building Material']
@@ -258,7 +258,7 @@ const items = [
     type: 'Block',
     description: 'A lush green block.',
     splicing: 'Thorns + Bricks',
-    growTime: '1 hour 20 minutes',
+    growTime: '60 minutes',
     image: '🟩',
     value: 19,
     properties: ['Splicable', 'Building Material']
@@ -270,7 +270,7 @@ const items = [
     type: 'Block',
     description: 'A clean white block.',
     splicing: 'Glass Block + Bricks',
-    growTime: '1 hour',
+    growTime: '1 hour and 30 minutes',
     image: '⬜',
     value: 18,
     properties: ['Splicable', 'Building Material']
@@ -282,7 +282,7 @@ const items = [
     type: 'Block',
     description: 'A vibrant purple block.',
     splicing: 'Raspberry + White Block',
-    growTime: '2 hours 30 minutes',
+    growTime: '12 hours 30 minutes',
     image: '🟪',
     value: 32,
     properties: ['Splicable', 'Building Material']
@@ -294,7 +294,7 @@ const items = [
     type: 'Block',
     description: 'A cool blue block.',
     splicing: 'Blueberry + White Block',
-    growTime: '2 hours 40 minutes',
+    growTime: '16 hours',
     image: '🟦',
     value: 34,
     properties: ['Splicable', 'Building Material']
@@ -306,11 +306,155 @@ const items = [
     type: 'Block',
     description: 'A shiny gold block used for luxury builds.',
     splicing: 'Display Box + Steel Block',
-    growTime: '3 hours',
+    growTime: '24 hours',
     image: '🟨',
     value: 'N/A',
     properties: ['Splicable', 'Building Material', 'Luxury']
-  }
+  },
+  {
+    id: 27,
+    name: 'Steel Block',
+    rarity: '13',
+    type: 'Block',
+    description: 'It`s made of Steel.',
+    splicing: 'Campfire + Iron',
+    growTime: '25 minutes',
+    image: '🟨',
+    value: 'N/A',
+    properties: ['Splicable', 'Building Material', 'Luxury']
+  },
+   {
+    id: 28,
+    name: 'Raspberry',
+    rarity: '14',
+    type: 'Food',
+    description: 'A brother of blueberry.',
+    splicing: 'Bush + Cave Background',
+    growTime: '35 minutes',
+    image: '🟨',
+    value: 'N/A',
+    properties: ['Splicable', 'Consumable', 'Not Farmable']
+  },
+   {
+    id: 29,
+    name: 'Mushroom',
+    rarity: '10',
+    type: 'Block',
+    description: 'White bouncy Fungi.',
+    splicing: 'Grass + Dirt',
+    growTime: '15 minutes',
+    image: '🟨',
+    value: 'N/A',
+    properties: ['Splicable', 'Building Material', 'Farmable']
+  },
+  {
+    id: 30,
+    name: 'Blueberry',
+    rarity: '18',
+    type: 'Food',
+    description: 'A berry that is blue.',
+    splicing: 'Mushroom + Bush',
+    growTime: '90 minutes',
+    image: '🟨',
+    value: 'N/A',
+    properties: ['Splicable', 'Consumable', 'Not Farmable']
+  },
+  {
+    id: 31,
+    name: 'Bush',
+    rarity: '11',
+    type: 'Background',
+    description: 'Older brother of graass.',
+    splicing: 'Grass + Wood',
+    growTime: '20 minutes',
+    image: '🟨',
+    value: 'N/A',
+    properties: ['Splicable', 'Design', 'Farmable']
+  },
+  {
+    id: 32,
+    name: 'Grass',
+    rarity: '5',
+    type: 'Background',
+    description: 'Just plain Grass nothing else.',
+    splicing: 'Grass + Wood',
+    growTime: '2 minutes and 20 seconds',
+    image: '🟨',
+    value: 'N/A',
+    properties: ['Splicable', 'Decoration', 'Farmable']
+  },
+  {
+    id: 33,
+    name: 'Spikes',
+    rarity: '20',
+    type: 'Block',
+    description: 'Ouch! Do not touch it.',
+    splicing: 'NONE',
+    growTime: 'Obtainble via Parkour pack',
+    image: '🟨',
+    value: 'N/A',
+    properties: ['Deadly', 'Not Farmable']
+  },
+  {
+    id: 34,
+    name: 'Checkpoint',
+    rarity: '30',
+    type: 'Block',
+    description: 'Your new respawn spot.',
+    splicing: 'Obtainble via Parkour pack',
+    growTime: 'None',
+    image: '🟨',
+    value: 'N/A',
+    properties: ['Decoration', 'Not Farmable']
+  },
+  {
+    id: 35,
+    name: 'Cash Register',
+    rarity: '44',
+    type: 'Block',
+    description: 'Your new respawn spot.',
+    splicing: 'Obtainable via Shop Pack',
+    growTime: '48 hours',
+    image: '🟨',
+    value: 'N/A',
+    properties: ['Decoration', 'Not Farmable']
+  },
+  {
+    id: 36,
+    name: 'Donation Box',
+    rarity: '38',
+    type: 'Block',
+    description: 'You could drop items here for donation and only the owner/admins can access them.',
+    splicing: 'Obtainable via Shop Pack',
+    growTime: '17 hours',
+    image: '🟨',
+    value: 'N/A',
+    properties: ['Spliceable','Decoration', 'Not Farmable']
+  },
+  {
+    id: 37,
+    name: 'Autumn Grass',
+    rarity: '8',
+    type: 'Background',
+    description: 'It`s just a dying grass.',
+    splicing: 'Obtainable via Autumn WORLD by dropping 10+ rarity in the middle.',
+    growTime: 'notsure',
+    image: '🟨',
+    value: 'N/A',
+    properties: ['Decoration', 'Farmable']
+  },
+  {
+    id: 39,
+    name: 'Autumn Bush',
+    rarity: '11',
+    type: 'Background',
+    description: 'Autumn Event but it`s just a bush.',
+    splicing: 'Obtainable via Autumn WORLD by dropping 10+ rarity in the middle.',
+    growTime: 'notsure',
+    image: '🟨',
+    value: 'N/A',
+    properties: ['Decoration', 'Farmable']
+  },
 ];
 
 export default items;
