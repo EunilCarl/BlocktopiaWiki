@@ -4,16 +4,18 @@
     label: "All",
   },
   {
-    value: "seed",
-    label: "Seed",
-  },
-  {
-    value: "tool",
-    label: "Tool",
-  },
-  {
-    value: "block",
+     value: "block",
     label: "Block",
+    
+  },
+  {
+     value: "seed",
+    label: "Seed",
+   
+  },
+  {
+    value: "background",
+    label: "Background",
   },
   {
     value: "lock",

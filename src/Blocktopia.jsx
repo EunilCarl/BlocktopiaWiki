@@ -1,5 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { Search,Star,Plus,MessageSquare,User,Calendar,ChevronDown,ChevronUp,ExternalLink,Moon,Flame,Filter,Sparkles,Check,ChevronsUpDown, } from "lucide-react";
+import {
+  Search,
+  Star,
+  Plus,
+  MessageSquare,
+  User,
+  Calendar,
+  ChevronDown,
+  ChevronUp,
+  ExternalLink,
+  Moon,
+  Flame,
+  Filter,
+  Sparkles,
+  Check,
+  ChevronsUpDown,
+} from "lucide-react";
 import { Button } from "./components/ui/button";
 import { Input } from "./components/ui/input";
 import {
@@ -19,7 +35,6 @@ import { ScrollArea } from "./components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./components/ui/tabs";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import items from "./data/items";
 import categories from "./data/categories";
 import rarityColors from "./data/rarityColors";
 import { Highlighter } from "./components/magicui/highlighter";
@@ -39,6 +54,8 @@ import {
 } from "./components/ui/popover";
 import { DotPattern } from "./components/magicui/dot-pattern";
 import CommunityThreads from "./components/CommunityThreads";
+import { supabase } from "./lib/supabaseClient";
+import { Skeleton } from "./components/ui/skeleton";
 
 const BlocktopiaWiki = () => {
   const [selectedItem, setSelectedItem] = useState(null);
@@ -47,6 +64,25 @@ const BlocktopiaWiki = () => {
   const [darkMode, setDarkMode] = useState(true);
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = useState("all");
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchItems = async () => {
+      const { data, error } = await supabase
+        .from("items")
+        .select("*")
+        .order("id", { ascending: true });
+      if (error) {
+        console.error("Error fetching items:", error.message);
+      } else {
+        setItems(data);
+      }
+      setLoading(false);
+    };
+
+    fetchItems();
+  }, []);
 
   // Apply dark mode to document
   useEffect(() => {
@@ -69,20 +105,24 @@ const BlocktopiaWiki = () => {
   }
 
   const filteredItems = items.filter((item) => {
-    // ✅ Search check (by name OR description)
     const matchesSearch =
-      !searchQuery || // if searchQuery is empty, match everything
+      !searchQuery ||
       item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.description.toLowerCase().includes(searchQuery.toLowerCase());
 
-    // ✅ Category check (all or exact type)
     const matchesFilter =
       value === "" || value === "all"
         ? true
-        : item.type.toLowerCase() === value.toLowerCase();
+        : item.type?.toLowerCase() === value.toLowerCase();
 
     return matchesSearch && matchesFilter;
   });
+
+  function getImageUrl(path) {
+    if (!path) return "";
+    const { data } = supabase.storage.from("items").getPublicUrl(path);
+    return data.publicUrl;
+  }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -171,36 +211,53 @@ const BlocktopiaWiki = () => {
 
                   <ScrollArea className="h-[400px] mt-4">
                     <div className="space-y-2">
-                      {filteredItems.map((item) => (
-                        <Card
-                          key={item.id}
-                          className={`cursor-pointer transition-all hover:shadow-md ${
-                            selectedItem?.id === item.id
-                              ? "border-primary border-2"
-                              : "hover:border-primary/50"
-                          }`}
-                          onClick={() => setSelectedItem(item)}
-                        >
-                          <CardContent>
-                            <div className="flex items-center space-x-3">
-                              <div className="text-2xl">{item.image}</div>
-                              <div className="flex-1 min-w-0">
-                                <div className="font-medium truncate">
-                                  {item.name}
+                      {loading
+                        ? // Skeletons when loading
+                          Array.from({ length: 6 }).map((_, i) => (
+                            <Card key={i}>
+                              <CardContent className="flex items-center space-x-3">
+                                <Skeleton className="h-12 w-10 rounded" />
+                                <div className="flex-1 space-y-2">
+                                  <Skeleton className="h-4 w-24" />
+                                  <Skeleton className="h-3 w-16" />
                                 </div>
-                                <Badge
-                                  variant="outline"
-                                  className={`text-xs ${getRarityColor(
-                                    item.rarity
-                                  )}`}
-                                >
-                                  {item.rarity}
-                                </Badge>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
+                              </CardContent>
+                            </Card>
+                          ))
+                        : filteredItems.map((item) => (
+                            <Card
+                              key={item.id}
+                              className={`cursor-pointer transition-all hover:shadow-md ${
+                                selectedItem?.id === item.id
+                                  ? "border-primary border-2"
+                                  : "hover:border-primary/50"
+                              }`}
+                              onClick={() => setSelectedItem(item)}
+                            >
+                              <CardContent>
+                                <div className="flex items-center space-x-3">
+                                  <img
+                                    src={getImageUrl(item.image)}
+                                    alt={item.name}
+                                    className="w-10 h-10 object-contain rounded"
+                                  />
+                                  <div className="flex-1 min-w-0">
+                                    <div className="font-medium truncate">
+                                      {item.name}
+                                    </div>
+                                    <Badge
+                                      variant="outline"
+                                      className={`text-xs ${getRarityColor(
+                                        item.rarity
+                                      )}`}
+                                    >
+                                      {item.rarity}
+                                    </Badge>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
                     </div>
                   </ScrollArea>
                 </div>
@@ -234,9 +291,11 @@ const BlocktopiaWiki = () => {
                       <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-4 sm:space-y-0">
                         {/* Item Image */}
 
-                        <div className="flex-shrink-0 text-5xl sm:text-6xl bg-white/20 rounded-xl p-4 backdrop-blur shadow-md flex items-center justify-center">
-                          {selectedItem.image}
-                        </div>
+                        <img
+                          src={getImageUrl(selectedItem.image)}
+                          alt={selectedItem.name}
+                          className="w-20 h-20 sm:w-28 sm:h-28 object-contain rounded backdrop-blur"
+                        />
 
                         {/* Item Info */}
                         <div className="flex-1">
@@ -324,7 +383,7 @@ const BlocktopiaWiki = () => {
                       <img
                         src="/logo.png"
                         alt="Blocktopia Logo"
-                        className="h-20 w-20 mb-6 mx-auto shadow-md"
+                        className="h-20 w-20 mb-6 mx-auto shadow-md "
                       />
 
                       {/* Title */}
