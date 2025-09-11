@@ -98,15 +98,10 @@ Go to the original repository and open a pull request from your branch.
 
 A huge thanks to all the amazing people who contribute to **BlocktopiaWiki**! 💡  
 
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- prettier-ignore-start -->
-<!-- markdownlint-disable -->
+<a href="https://github.com/EunilCarl/BlocktopiaWiki/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=EunilCarl/BlocktopiaWiki" />
+</a>
 
-<!-- markdownlint-restore -->
-<!-- prettier-ignore-end -->
-
-<!-- ALL-CONTRIBUTORS-LIST:END -->
-
-✨ **Contributions are always welcome and much appreciated!**  
+## ✨ **Contributions are always welcome and much appreciated!**  
 To be listed here, simply make your first contribution and your name will appear in the contributors list.
 
