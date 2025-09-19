@@ -3,11 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Flame } from "lucide-react";
 import Head from "next/head";
 import { motion } from "framer-motion";
-import {
-  Card,
-  CardContent,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/lib/supabaseClient";
@@ -34,11 +30,13 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import '../../app/globals.css';
+import "../../app/globals.css";
 import { Skeleton } from "@/ui/skeleton";
+import { usePathname } from "next/navigation";
 
 const ItemPage = ({ item }) => {
-
+  const pathname = usePathname();
+  const currentUrl = `https://blocktopia-wiki.vercel.app${pathname}`;
   const [selectedItem, setSelectedItem] = useState(item);
   const [searchQuery, setSearchQuery] = useState("");
   const [value, setValue] = useState("all");
@@ -49,54 +47,57 @@ const ItemPage = ({ item }) => {
   const cardRef = useRef(null);
 
   // Scroll to item card on mobile
-// Scroll to item card on mobile after DOM update
-useEffect(() => {
-  if (!selectedItem || window.innerWidth >= 1024) return;
+  // Scroll to item card on mobile after DOM update
+  useEffect(() => {
+    if (!selectedItem || window.innerWidth >= 1024) return;
 
-  const scrollToCard = () => {
-    if (cardRef.current) {
-      const yOffset = -130;
-      const y =
-        cardRef.current.getBoundingClientRect().top +
-        window.pageYOffset +
-        yOffset;
-      window.scrollTo({ top: y, behavior: "smooth" });
-    }
-  };
+    const scrollToCard = () => {
+      if (cardRef.current) {
+        const yOffset = -130;
+        const y =
+          cardRef.current.getBoundingClientRect().top +
+          window.pageYOffset +
+          yOffset;
+        window.scrollTo({ top: y, behavior: "smooth" });
+      }
+    };
 
-  // Wait for DOM to paint the selected card
-  requestAnimationFrame(() => {
-    scrollToCard();
-  });
+    // Wait for DOM to paint the selected card
+    requestAnimationFrame(() => {
+      scrollToCard();
+    });
 
-  // In case animations or motion div delays rendering, also do a slight timeout
-  const timer = setTimeout(() => {
-    scrollToCard();
-  }, 50);
+    // In case animations or motion div delays rendering, also do a slight timeout
+    const timer = setTimeout(() => {
+      scrollToCard();
+    }, 50);
 
-  return () => clearTimeout(timer);
-}, [selectedItem]);
-
+    return () => clearTimeout(timer);
+  }, [selectedItem]);
 
   // Fetch items
-useEffect(() => {
-  const fetchItems = async () => {
-    setLoading(true); // start loader
-    const { data, error } = await supabase.from("items").select("*").order("id");
-    if (error) {
-      console.error(error);
-      setLoading(false);
-      return;
-    }
-    setItems(data);
-    const slug = window.location.pathname.replace(/^\/items\//, "");
-    const current = data.find((i) => i.image?.replace(/\.[^/.]+$/, "") === slug);
-    setSelectedItem(current);
-    setLoading(false); // stop loader
-  };
-  fetchItems();
-}, []);
-
+  useEffect(() => {
+    const fetchItems = async () => {
+      setLoading(true); // start loader
+      const { data, error } = await supabase
+        .from("items")
+        .select("*")
+        .order("id");
+      if (error) {
+        console.error(error);
+        setLoading(false);
+        return;
+      }
+      setItems(data);
+      const slug = window.location.pathname.replace(/^\/items\//, "");
+      const current = data.find(
+        (i) => i.image?.replace(/\.[^/.]+$/, "") === slug
+      );
+      setSelectedItem(current);
+      setLoading(false); // stop loader
+    };
+    fetchItems();
+  }, []);
 
   // Dark mode toggle
   useEffect(() => {
@@ -115,21 +116,19 @@ useEffect(() => {
 
   // Filtered items
   const filteredItems = items.filter((item) => {
-  const name = item.name?.toLowerCase() || "";
-  const desc = item.description?.toLowerCase() || "";
-  const type = item.type?.toLowerCase() || "";
+    const name = item.name?.toLowerCase() || "";
+    const desc = item.description?.toLowerCase() || "";
+    const type = item.type?.toLowerCase() || "";
 
-  const matchesSearch =
-    !searchQuery ||
-    name.includes(searchQuery.toLowerCase()) ||
-    desc.includes(searchQuery.toLowerCase());
+    const matchesSearch =
+      !searchQuery ||
+      name.includes(searchQuery.toLowerCase()) ||
+      desc.includes(searchQuery.toLowerCase());
 
-  const matchesFilter =
-    value === "all" ? true : type === value.toLowerCase();
+    const matchesFilter = value === "all" ? true : type === value.toLowerCase();
 
-  return matchesSearch && matchesFilter;
-});
-
+    return matchesSearch && matchesFilter;
+  });
 
   // Get image URL from Supabase
   const getImageUrl = (path) =>
@@ -139,6 +138,75 @@ useEffect(() => {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <Head>
+        <title>
+          {selectedItem?.name
+            ? `${selectedItem.name} | Blocktopia Wiki`
+            : "Blocktopia Wiki"}
+        </title>
+        <link rel="icon" href="/logo.webp" type="image/webp" />
+
+        {/* Meta Description */}
+        <meta
+          name="description"
+          content={
+            selectedItem?.description || "Your ultimate guide to Blocktopia"
+          }
+        />
+
+        {/* Canonical URL */}
+        <link
+          rel="canonical"
+          href={currentUrl || "https://blocktopia-wiki.vercel.app"}
+        />
+
+        {/* Open Graph */}
+        <meta property="og:type" content="website" />
+        <meta
+          property="og:title"
+          content={
+            selectedItem?.name
+              ? `${selectedItem.name} | Blocktopia Wiki`
+              : "Blocktopia Wiki"
+          }
+        />
+        <meta
+          property="og:description"
+          content={
+            selectedItem?.description || "Your ultimate guide to Blocktopia"
+          }
+        />
+        <meta
+          property="og:image"
+          content={getImageUrl(selectedItem?.image) || "/default-thumbnail.png"}
+        />
+        <meta
+          property="og:url"
+          content={currentUrl || "https://blocktopia-wiki.vercel.app"}
+        />
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta
+          name="twitter:title"
+          content={
+            selectedItem?.name
+              ? `${selectedItem.name} | Blocktopia Wiki`
+              : "Blocktopia Wiki"
+          }
+        />
+        <meta
+          name="twitter:description"
+          content={
+            selectedItem?.description || "Your ultimate guide to Blocktopia"
+          }
+        />
+        <meta
+          name="twitter:image"
+          content={getImageUrl(selectedItem?.image) || "/default-thumbnail.png"}
+        />
+      </Head>
+
       <Header items={items} darkMode={darkMode} setDarkMode={setDarkMode} />
 
       <div className="container mx-auto px-4 py-8">
@@ -175,8 +243,8 @@ useEffect(() => {
 
               <TabsContent value="item-details">
                 {loading ? (
-                   <Skeleton />
-               ):  selectedItem ? (
+                  <Skeleton />
+                ) : selectedItem ? (
                   <motion.div
                     ref={cardRef}
                     initial={{ opacity: 0, y: 20 }}
@@ -287,7 +355,9 @@ useEffect(() => {
                               {[
                                 {
                                   label: "Gems Value",
-                                  value: selectedItem.value ? selectedItem.value.toLocaleString() : "N/A",
+                                  value: selectedItem.value
+                                    ? selectedItem.value.toLocaleString()
+                                    : "N/A",
                                 },
                                 {
                                   label: "Growth Time",
@@ -486,7 +556,6 @@ const WelcomeCard = () => (
 );
 
 export default ItemPage;
-
 
 // Remove server-side fetching, and just
 
