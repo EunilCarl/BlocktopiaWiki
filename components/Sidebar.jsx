@@ -51,35 +51,39 @@ const Sidebar = ({
   // Get the current slug from the URL
   const currentRoute = pathname?.replace(/^\/items\//, "") || "";
 
-// helper: consistent slug extraction
-const getSlug = (item) =>
-  item?.slug ||
-  (item?.image ? item.image.replace(/\.[^/.]+$/, "") : "");
+  // helper: consistent slug extraction
+  const getSlug = (item) =>
+    item?.slug || (item?.image ? item.image.replace(/\.[^/.]+$/, "") : "");
 
-// effect: when pathname changes, set selectedItem + scroll
-useEffect(() => {
-  if (loading || !filteredItems?.length) return;
+  // effect: when pathname changes, set selectedItem + scroll
+  useEffect(() => {
+    if (loading || !filteredItems?.length) return;
 
-  const slugFromPath = pathname?.replace(/^\/items\//, "") || "";
-  if (!slugFromPath) return;
+    const slugFromPath = pathname?.replace(/^\/items\//, "") || "";
+    if (!slugFromPath) return;
 
-  const matchedItem = filteredItems.find((it) => getSlug(it) === slugFromPath);
-  if (!matchedItem) return;
+    const matchedItem = filteredItems.find(
+      (it) => getSlug(it) === slugFromPath
+    );
+    if (!matchedItem) return;
 
-  // set selected via effect (don't set it in the Link click)
-  setSelectedItem(matchedItem);
+    // ✅ only update if different
+    if (matchedItem.id !== selectedItem?.id) {
+      setSelectedItem(matchedItem);
 
-  // scroll to element once DOM updated
-  requestAnimationFrame(() => {
-    const el = itemRefs.current[matchedItem.id];
-    const container = scrollRef.current;
-    if (el && container) {
-      // center the item (adjust if you prefer top)
-      container.scrollTop = el.offsetTop - container.offsetTop - container.clientHeight / 2 + el.clientHeight / 2;
+      if (typeof window !== "undefined" && window.innerWidth < 1024) {
+        requestAnimationFrame(() => {
+          const el = itemRefs.current[matchedItem.id];
+          if (el) {
+            el.scrollIntoView({
+              behavior: "smooth",
+              block: "center",
+            });
+          }
+        });
+      }
     }
-  });
-}, [pathname, filteredItems, loading]); // depends on pathname
-
+  }, [pathname, filteredItems, loading]);
 
   // Preview for editing
   useEffect(() => {
@@ -205,7 +209,6 @@ useEffect(() => {
             </Popover>
           </div>
 
-
           {/* Items List */}
           <div>
             <Label className="text-sm font-medium mb-3 block">
@@ -216,7 +219,7 @@ useEffect(() => {
               <div className="space-y-2">
                 {loading
                   ? Array.from({ length: 6 }).map((_, i) => (
-                      <Card key={i}>
+                      <Card key={`skeleton-${i}`}>
                         <CardContent className="flex items-center space-x-3">
                           <Skeleton className="h-12 w-10 rounded" />
                           <div className="flex-1 space-y-2">
@@ -231,64 +234,89 @@ useEffect(() => {
                       const slug = getSlug(item);
 
                       return (
-                        <Link
+                        <Card
                           key={item.id}
-                          href={`/items/${slug}`}
-                          className="block"
-                        prefetch>
-                          <Card
-                            ref={(el) => (itemRefs.current[item.id] = el)}
-                            className={cn(
-                              "cursor-pointer transition-all hover:shadow-md",
-                              isActive
-                                ? "border-primary border-2"
-                                : "hover:border-primary/50"
-                            )}
-                        
-                          >
-                            <CardContent>
-                              <div className="flex items-center space-x-3">
-                                <img
-                                  src={getImageUrl(item.image)}
-                                  alt={item.name}
-                                  className="w-10 h-10 object-contain rounded"
-                                />
-                                <div className="flex-1 min-w-0">
-                                  <div className="font-medium flex items-center justify-between">
-                                    <span
-                                      className="mr-2"
-                                      style={{
-                                        wordBreak: "break-word",
-                                        overflowWrap: "anywhere",
-                                      }}
-                                    >
-                                      {item.name}
-                                    </span>
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      className="h-6 w-6"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setEditingItem(item);
-                                      }}
-                                    >
-                                      <Pencil className="h-4 w-4" />
-                                    </Button>
-                                  </div>
-                                  <Badge
-                                    variant="outline"
-                                    className={`text-xs ${getRarityColor(
-                                      item.rarity
-                                    )}`}
+                          ref={(el) => (itemRefs.current[item.id] = el)}
+                          onClick={(e) => {
+                            e.preventDefault();
+
+                            setSelectedItem(item); // immediately update UI
+                       
+                            // replace with conditional rendering so item shows instantly if already in state
+
+                            // update URL without refresh
+                            const slug = getSlug(item);
+                            router.push(`/items/${slug}`, {
+                              shallow: true,
+                              scroll: false,
+                            });
+
+                            // scroll on mobile
+                            if (
+                              typeof window !== "undefined" &&
+                              window.innerWidth < 1024
+                            ) {
+                              const scrollToItem = () => {
+                                const el = itemRefs.current[item.id];
+                                if (el)
+                                  el.scrollIntoView({
+                                    behavior: "smooth",
+                                    block: "center",
+                                  });
+                              };
+                              requestAnimationFrame(scrollToItem);
+                              setTimeout(scrollToItem, 50);
+                            }
+                          }}
+                          className={cn(
+                            "cursor-pointer transition-all hover:shadow-md",
+                            isActive
+                              ? "border-primary border-2"
+                              : "hover:border-primary/50"
+                          )}
+                        >
+                          <CardContent>
+                            <div className="flex items-center space-x-3">
+                              <img
+                                src={getImageUrl(item.image)}
+                                alt={item.name}
+                                className="w-10 h-10 object-contain rounded"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium flex items-center justify-between">
+                                  <span
+                                    className="mr-2"
+                                    style={{
+                                      wordBreak: "break-word",
+                                      overflowWrap: "anywhere",
+                                    }}
                                   >
-                                    {item.rarity}
-                                  </Badge>
+                                    {item.name}
+                                  </span>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-6 w-6"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setEditingItem(item);
+                                    }}
+                                  >
+                                    <Pencil className="h-4 w-4" />
+                                  </Button>
                                 </div>
+                                <Badge
+                                  variant="outline"
+                                  className={`text-xs ${getRarityColor(
+                                    item.rarity
+                                  )}`}
+                                >
+                                  {item.rarity}
+                                </Badge>
                               </div>
-                            </CardContent>
-                          </Card>
-                        </Link>
+                            </div>
+                          </CardContent>
+                        </Card>
                       );
                     })}
               </div>

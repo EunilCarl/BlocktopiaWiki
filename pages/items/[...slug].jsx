@@ -35,9 +35,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import '../../app/globals.css';
-
+import { Skeleton } from "@/ui/skeleton";
 
 const ItemPage = ({ item }) => {
+
   const [selectedItem, setSelectedItem] = useState(item);
   const [searchQuery, setSearchQuery] = useState("");
   const [value, setValue] = useState("all");
@@ -48,8 +49,12 @@ const ItemPage = ({ item }) => {
   const cardRef = useRef(null);
 
   // Scroll to item card on mobile
-  useEffect(() => {
-    if (selectedItem && cardRef.current && window.innerWidth < 1024) {
+// Scroll to item card on mobile after DOM update
+useEffect(() => {
+  if (!selectedItem || window.innerWidth >= 1024) return;
+
+  const scrollToCard = () => {
+    if (cardRef.current) {
       const yOffset = -130;
       const y =
         cardRef.current.getBoundingClientRect().top +
@@ -57,23 +62,41 @@ const ItemPage = ({ item }) => {
         yOffset;
       window.scrollTo({ top: y, behavior: "smooth" });
     }
-  }, [selectedItem]);
+  };
+
+  // Wait for DOM to paint the selected card
+  requestAnimationFrame(() => {
+    scrollToCard();
+  });
+
+  // In case animations or motion div delays rendering, also do a slight timeout
+  const timer = setTimeout(() => {
+    scrollToCard();
+  }, 50);
+
+  return () => clearTimeout(timer);
+}, [selectedItem]);
+
 
   // Fetch items
-  useEffect(() => {
-    const fetchItems = async () => {
-      const { data, error } = await supabase
-        .from("items")
-        .select("*")
-        .order("id", { ascending: true });
-
-      if (error) console.error("Error fetching items:", error.message);
-      else setItems(data);
-
+useEffect(() => {
+  const fetchItems = async () => {
+    setLoading(true); // start loader
+    const { data, error } = await supabase.from("items").select("*").order("id");
+    if (error) {
+      console.error(error);
       setLoading(false);
-    };
-    fetchItems();
-  }, []);
+      return;
+    }
+    setItems(data);
+    const slug = window.location.pathname.replace(/^\/items\//, "");
+    const current = data.find((i) => i.image?.replace(/\.[^/.]+$/, "") === slug);
+    setSelectedItem(current);
+    setLoading(false); // stop loader
+  };
+  fetchItems();
+}, []);
+
 
   // Dark mode toggle
   useEffect(() => {
@@ -151,7 +174,9 @@ const ItemPage = ({ item }) => {
               </TabsList>
 
               <TabsContent value="item-details">
-                {selectedItem ? (
+                {loading ? (
+                   <Skeleton />
+               ):  selectedItem ? (
                   <motion.div
                     ref={cardRef}
                     initial={{ opacity: 0, y: 20 }}
@@ -463,22 +488,6 @@ const WelcomeCard = () => (
 export default ItemPage;
 
 
-// Fetch the item by slug
-// Fetch the item by slug
-export async function getServerSideProps({ params }) {
-  const slugPath = Array.isArray(params.slug) ? params.slug.join("/") : params.slug;
-  console.log("Fetching slug:", slugPath);
+// Remove server-side fetching, and just
 
-  const { data: items, error } = await supabase
-    .from("items")
-    .select("*")
-    .like("image", `${slugPath}.%`)
-    .limit(1); // get only one match
-
-  if (error || !items || items.length === 0) {
-    return { notFound: true };
-  }
-
-  return { props: { item: items[0] } };
-}
-
+// fetch items on mounts
