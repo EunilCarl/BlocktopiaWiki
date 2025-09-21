@@ -37,6 +37,10 @@
     value: "event",
     label: "Event",
   },
+  {
+    value: "other",
+    label: "Other",
+  },
 ];
 
 export default categories;
