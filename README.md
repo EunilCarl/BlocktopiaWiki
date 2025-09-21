@@ -1,36 +1,108 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Blocktopia Wiki 🧱🌐
 
-## Getting Started
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![Website](https://img.shields.io/website?url=https%3A%2F%2Fblocktopia-wiki.vercel.app%2F)](https://blocktopia-wiki.vercel.app/)
 
-First, run the development server:
+---
+
+## 🚀 Project Overview
+
+**Blocktopia Wiki** is a community-driven wiki platform dedicated to Blocktopia, designed to provide comprehensive and up-to-date information about the game. It is built with modern web technologies to ensure a fast, responsive, and user-friendly experience.
+
+Explore the live site here: [blocktopia-wiki.vercel.app](https://blocktopia-wiki.vercel.app/)
+
+---
+
+## 🛠️ Tech Stack
+
+| Technology       | Description                                  | Icon                                      |
+|------------------|----------------------------------------------|-------------------------------------------|
+| React            | Frontend UI library                          | ⚛️ ![React](https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black) |
+| Next.js          | React framework for production apps          | ▲ ![Next.js](https://img.shields.io/badge/Next.js-000000?logo=next.js&logoColor=white) |
+| Tailwind CSS     | Utility-first CSS framework                  | 🎨 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?logo=tailwind-css&logoColor=white) |
+| shadcn/ui        | UI components built on Radix UI              | 🧩 ![shadcn/ui](https://img.shields.io/badge/shadcn-ui-111827?logo=tailwind-css&logoColor=white) |
+| MagicUI          | UI toolkit for React                         | ✨ ![MagicUI](https://img.shields.io/badge/MagicUI-FF69B4?logo=react&logoColor=white) |
+| Lucide Icons     | Open-source icon library                     | 🖼️ ![Lucide Icons](https://img.shields.io/badge/Lucide-000000?logo=lucide&logoColor=white) |
+| Supabase         | Backend as a Service (BaaS) for database     | ☁️ ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?logo=supabase&logoColor=white) |
+| Vite             | Next-generation frontend tooling             | ⚡ ![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white) |
+
+---
+
+## 📦 Installation & Setup
+
+### 1. **Clone the repository**
+
+```bash
+git clone https://github.com/EunilCarl/BlocktopiaWiki.git
+cd BlocktopiaWiki
+```
+
+### 2. **Install dependencies**
+
+```bash
+npm install
+# or
+yarn install
+```
+
+### 3. **Run the development server**
 
 ```bash
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📝 How to Contribute
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+We welcome contributions from the community! 🎉 Whether it's fixing a bug, improving documentation, or adding new features — your help makes **BlocktopiaWiki** better for everyone.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Follow these steps to contribute:
 
-## Learn More
+### 1. Fork the Repository
+Click the **"Fork"** button on the top right of the repository page.
 
-To learn more about Next.js, take a look at the following resources:
+### 2. Clone Your Fork
+```bash
+git clone https://github.com/your-username/BlocktopiaWiki.git
+cd BlocktopiaWiki
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 3. Create a new branch
+```bash
+git checkout -b feature/your-feature-name
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 4. Make your changes
+- Add new features, fix bugs, or improve documentation.
+- Follow the existing code style and conventions.
+- Run linting and tests if applicable
 
-## Deploy on Vercel
+### 5. Commit your changes
+```bash
+git add .
+git commit -m "Add detailed description of your changes"
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 6. Push to your branch
+```bash
+git push origin feature/your-feature-name
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 7. Open a Pull Request
+Go to the original repository and open a pull request from your branch.
+
+## 📜 License
+- This project is licensed under the **Apache License 2.0** – see the [LICENSE](LICENSE) file for details.
+
+## 🤝 Contributors
+
+A huge thanks to all the amazing people who contribute to **BlocktopiaWiki**! 💡  
+
+<a href="https://github.com/EunilCarl/BlocktopiaWiki/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=EunilCarl/BlocktopiaWiki" />
+</a>
+
+## ✨ **Contributions are always welcome and much appreciated!**  
+To be listed here, simply make your first contribution and your name will appear in the contributors list.
+

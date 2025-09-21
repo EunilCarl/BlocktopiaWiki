@@ -1,4 +1,3 @@
-"use client";
 import React, { useState, useEffect, useRef } from "react";
 import { Flame } from "lucide-react";
 import Head from "next/head";
@@ -137,267 +136,231 @@ const ItemPage = ({ item }) => {
       : "";
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <>
       <Head>
         <title>
-          {selectedItem?.name
-            ? `${selectedItem.name} | Blocktopia Wiki`
-            : "Blocktopia Wiki"}
+          {item ? `${item.name} | Blocktopia Wiki` : "Blocktopia Wiki"}
         </title>
-        <link rel="icon" href="/logo.webp" type="image/webp" />
-
-        {/* Meta Description */}
         <meta
           name="description"
-          content={
-            selectedItem?.description || "Your ultimate guide to Blocktopia"
-          }
+          content={item?.description || "Your ultimate guide to Blocktopia"}
         />
 
-        {/* Canonical URL */}
-        <link
-          rel="canonical"
-          href={currentUrl || "https://blocktopia-wiki.vercel.app"}
-        />
-
-        {/* Open Graph */}
+        <link rel="icon" href="/logo-v1.webp" type="image/webp" />
         <meta property="og:type" content="website" />
-        <meta
-          property="og:title"
-          content={
-            selectedItem?.name
-              ? `${selectedItem.name} | Blocktopia Wiki`
-              : "Blocktopia Wiki"
-          }
-        />
-        <meta
-          property="og:description"
-          content={
-            selectedItem?.description || "Your ultimate guide to Blocktopia"
-          }
-        />
-        <meta
-          property="og:image"
-          content={getImageUrl(selectedItem?.image) || "/default-thumbnail.png"}
-        />
+        <meta property="og:title" content={`${item?.name} | Blocktopia Wiki`} />
+        <meta property="og:description" content={item?.description} />
+        <meta property="og:image" content={getImageUrl(item?.image)} />
         <meta
           property="og:url"
-          content={currentUrl || "https://blocktopia-wiki.vercel.app"}
+          content={`https://blocktopia-wiki.vercel.app/items/${selectedItem?.slug}`}
         />
-
-        {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
+
         <meta
-          name="twitter:title"
-          content={
-            selectedItem?.name
-              ? `${selectedItem.name} | Blocktopia Wiki`
-              : "Blocktopia Wiki"
-          }
+          property="twitter:title"
+          content={`${item?.name} | Blocktopia Wiki`}
         />
-        <meta
-          name="twitter:description"
-          content={
-            selectedItem?.description || "Your ultimate guide to Blocktopia"
-          }
-        />
-        <meta
-          name="twitter:image"
-          content={getImageUrl(selectedItem?.image) || "/default-thumbnail.png"}
-        />
+        <meta property="twitter:description" content={item?.description} />
+        <meta property="twitter:image" content={getImageUrl(item?.image)} />
       </Head>
+      <div className="min-h-screen bg-background flex flex-col">
+        <Header items={items} darkMode={darkMode} setDarkMode={setDarkMode} />
 
-      <Header items={items} darkMode={darkMode} setDarkMode={setDarkMode} />
+        <div className="container mx-auto px-4 py-8">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {/* Sidebar */}
+            <Sidebar
+              {...{
+                searchQuery,
+                setSearchQuery,
+                value,
+                setValue,
+                open,
+                setOpen,
+                filteredItems,
+                selectedItem,
+                setSelectedItem,
+                loading,
+                getImageUrl,
+                getRarityColor,
+              }}
+            />
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Sidebar */}
-          <Sidebar
-            {...{
-              searchQuery,
-              setSearchQuery,
-              value,
-              setValue,
-              open,
-              setOpen,
-              filteredItems,
-              selectedItem,
-              setSelectedItem,
-              loading,
-              getImageUrl,
-              getRarityColor,
-            }}
-          />
+            {/* Main Content */}
+            <div className="lg:col-span-3 order-1 lg:order-2">
+              <Tabs defaultValue="item-details" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger className="cursor-pointer" value="item-details">
+                    Item Details
+                  </TabsTrigger>
+                  <TabsTrigger className="cursor-pointer" value="community">
+                    Community
+                  </TabsTrigger>
+                </TabsList>
 
-          {/* Main Content */}
-          <div className="lg:col-span-3 order-1 lg:order-2">
-            <Tabs defaultValue="item-details" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger className="cursor-pointer" value="item-details">
-                  Item Details
-                </TabsTrigger>
-                <TabsTrigger className="cursor-pointer" value="community">
-                  Community
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="item-details">
-                {loading ? (
-                  <Skeleton />
-                ) : selectedItem ? (
-                  <motion.div
-                    ref={cardRef}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4 }}
-                  >
-                    <Card className="overflow-hidden shadow-lg border border-border rounded-2xl">
-                      {/* Item Header */}
-                      <div className="relative flex items-center overflow-hidden rounded-t-2xl bg-background p-6 sm:p-10">
-                        <DotPattern
-                          width={15}
-                          height={20}
-                          cx={1}
-                          cy={1}
-                          cr={1}
-                          className={cn(
-                            "[mask-image:linear-gradient(to_bottom_right,white,transparent,transparent)] "
-                          )}
-                        />
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-4 sm:space-y-0">
-                          <img
-                            src={getImageUrl(selectedItem.image)}
-                            alt={selectedItem.name}
-                            className="w-24 h-24 sm:w-32 sm:h-32 object-contain rounded-lg backdrop-blur transition-transform hover:scale-105"
+                <TabsContent value="item-details">
+                  {loading ? (
+                    <Skeleton />
+                  ) : selectedItem ? (
+                    <motion.div
+                      ref={cardRef}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4 }}
+                    >
+                      <Card className="overflow-hidden shadow-lg border border-border rounded-2xl">
+                        {/* Item Header */}
+                        <div className="relative flex items-center overflow-hidden rounded-t-2xl bg-background p-6 sm:p-10">
+                          <DotPattern
+                            width={15}
+                            height={20}
+                            cx={1}
+                            cy={1}
+                            cr={1}
+                            className={cn(
+                              "[mask-image:linear-gradient(to_bottom_right,white,transparent,transparent)] "
+                            )}
                           />
-                          <div className="flex-1">
-                            <h2 className="text-2xl sm:text-4xl font-bold mb-2">
-                              {selectedItem.name}
-                            </h2>
-                            <div className="flex flex-wrap items-center gap-2 sm:gap-4">
-                              <Badge
-                                className={`${getRarityColor(
-                                  selectedItem.rarity
-                                )} border transition-all hover:scale-105`}
-                              >
-                                <Flame className="h-3 w-3 mr-1" />
-                                Rarity {selectedItem.rarity}
-                              </Badge>
-                              <Badge
-                                variant="secondary"
-                                className="transition-all hover:scale-105"
-                              >
-                                {selectedItem.type}
-                              </Badge>
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-4 sm:space-y-0">
+                            <img
+                              src={getImageUrl(selectedItem.image)}
+                              alt={selectedItem.name}
+                              className="w-24 h-24 sm:w-32 sm:h-32 object-contain rounded-lg backdrop-blur transition-transform hover:scale-105"
+                            />
+                            <div className="flex-1">
+                              <h2 className="text-2xl sm:text-4xl font-bold mb-2">
+                                {selectedItem.name}
+                              </h2>
+                              <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+                                <Badge
+                                  className={`${getRarityColor(
+                                    selectedItem.rarity
+                                  )} border transition-all hover:scale-105`}
+                                >
+                                  <Flame className="h-3 w-3 mr-1" />
+                                  Rarity {selectedItem.rarity}
+                                </Badge>
+                                <Badge
+                                  variant="secondary"
+                                  className="transition-all hover:scale-105"
+                                >
+                                  {selectedItem.type}
+                                </Badge>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
 
-                      <CardContent className="p-8 space-y-6">
-                        {/* Description */}
-                        <Section title="Description">
-                          <p className="text-muted-foreground leading-relaxed">
-                            {selectedItem.description ||
-                              "No description available."}
-                          </p>
-                        </Section>
+                        <CardContent className="p-8 space-y-6">
+                          {/* Description */}
+                          <Section title="Description">
+                            <p className="text-muted-foreground leading-relaxed">
+                              {selectedItem.description ||
+                                "No description available."}
+                            </p>
+                          </Section>
 
-                        {/* Block Properties */}
-                        <Section title="Block Properties">
-                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                            {[
-                              {
-                                label: "Punches Needed",
-                                value: selectedItem.punch,
-                              },
-                              {
-                                label: "Punches with Pickaxe",
-                                value: selectedItem.punchpick,
-                              },
-                              {
-                                label: "Tradeable",
-                                value: selectedItem.istradeable ? "Yes" : "No",
-                              },
-                            ].map(({ label, value }, i) => (
-                              <Card
-                                key={i}
-                                className="bg-muted/50 border rounded-lg p-4"
-                              >
-                                <p className="text-sm text-muted-foreground">
-                                  {label}
-                                </p>
-                                <p className="font-medium">{value || "N/A"}</p>
-                              </Card>
-                            ))}
-                          </div>
-                        </Section>
-
-                        {/* Properties badges */}
-                        <Section title="Properties">
-                          <div className="flex flex-wrap gap-2">
-                            {selectedItem.properties?.map((prop, i) => (
-                              <Badge
-                                key={i}
-                                variant="outline"
-                                className="transition-all hover:scale-105"
-                              >
-                                {prop}
-                              </Badge>
-                            ))}
-                          </div>
-                        </Section>
-
-                        {/* Value / Growth / Splicing */}
-                        <Card className="bg-muted/50">
-                          <CardContent className="p-6">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                          {/* Block Properties */}
+                          <Section title="Block Properties">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                               {[
                                 {
-                                  label: "Gems Value",
-                                  value: selectedItem.value
-                                    ? selectedItem.value.toLocaleString()
-                                    : "N/A",
+                                  label: "Punches Needed",
+                                  value: selectedItem.punch,
                                 },
                                 {
-                                  label: "Growth Time",
-                                  value: selectedItem.growTime,
+                                  label: "Punches with Pickaxe",
+                                  value: selectedItem.punchpick,
                                 },
                                 {
-                                  label: "Splicing Recipe",
-                                  value: selectedItem.splicing,
+                                  label: "Tradeable",
+                                  value: selectedItem.istradeable
+                                    ? "Yes"
+                                    : "No",
                                 },
                               ].map(({ label, value }, i) => (
-                                <div key={i}>
-                                  <div className="text-2xl font-bold">
-                                    {value}
-                                  </div>
-                                  <div className="text-sm text-muted-foreground">
+                                <Card
+                                  key={i}
+                                  className="bg-muted/50 border rounded-lg p-4"
+                                >
+                                  <p className="text-sm text-muted-foreground">
                                     {label}
-                                  </div>
-                                </div>
+                                  </p>
+                                  <p className="font-medium">
+                                    {value || "N/A"}
+                                  </p>
+                                </Card>
                               ))}
                             </div>
-                          </CardContent>
-                        </Card>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ) : (
-                  <WelcomeCard />
-                )}
-              </TabsContent>
+                          </Section>
 
-              <TabsContent value="community">
-                <CommunityThreads />
-              </TabsContent>
-            </Tabs>
+                          {/* Properties badges */}
+                          <Section title="Properties">
+                            <div className="flex flex-wrap gap-2">
+                              {selectedItem.properties?.map((prop, i) => (
+                                <Badge
+                                  key={i}
+                                  variant="outline"
+                                  className="transition-all hover:scale-105"
+                                >
+                                  {prop}
+                                </Badge>
+                              ))}
+                            </div>
+                          </Section>
+
+                          {/* Value / Growth / Splicing */}
+                          <Card className="bg-muted/50">
+                            <CardContent className="p-6">
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                                {[
+                                  {
+                                    label: "Gems Value",
+                                    value: selectedItem.value
+                                      ? selectedItem.value.toLocaleString()
+                                      : "N/A",
+                                  },
+                                  {
+                                    label: "Growth Time",
+                                    value: selectedItem.growTime,
+                                  },
+                                  {
+                                    label: "Splicing Recipe",
+                                    value: selectedItem.splicing,
+                                  },
+                                ].map(({ label, value }, i) => (
+                                  <div key={i}>
+                                    <div className="text-2xl font-bold">
+                                      {value}
+                                    </div>
+                                    <div className="text-sm text-muted-foreground">
+                                      {label}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  ) : (
+                    <WelcomeCard />
+                  )}
+                </TabsContent>
+
+                <TabsContent value="community">
+                  <CommunityThreads />
+                </TabsContent>
+              </Tabs>
+            </div>
           </div>
         </div>
-      </div>
 
-      <Footer />
-    </div>
+        <Footer />
+      </div>
+    </>
   );
 };
 
@@ -422,7 +385,7 @@ const WelcomeCard = () => (
       <div className="relative mb-4">
         <div className="absolute inset-0 bg-blue-400/5 rounded-2xl blur-md transform scale-200" />
         <img
-          src="/logo.webp"
+          src="/logo-v1.webp"
           alt="Blocktopia Logo"
           className="relative h-25 w-35 mx-auto"
         />
@@ -554,6 +517,28 @@ const WelcomeCard = () => (
     </CardContent>
   </Card>
 );
+
+export async function getServerSideProps({ params }) {
+  const name = decodeURIComponent(params.slug?.[0] || "");
+
+  const { data: items } = await supabase.from("items").select("*");
+
+  const { data: currentItem, error } = await supabase
+    .from("items")
+    .select("*")
+    .eq("name", name)   // ✅ use name instead of slug
+    .single();
+
+  console.log("SSR item:", currentItem, "error:", error);
+
+  return {
+    props: {
+      item: currentItem || null,
+      items: items || [],
+    },
+  };
+}
+
 
 export default ItemPage;
 

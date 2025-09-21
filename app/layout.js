@@ -24,7 +24,7 @@ export const metadata = {
   openGraph: {
     type: "website",
     url: "https://blocktopia-wiki.vercel.app/",
-    title: "Blocktopia Wiki — Roblox Tips, Tricks & Guides",
+    title: "Blocktopia Wiki",
     description:
       "Blocktopia Wiki — a Roblox-style sandbox MMORPG where you can build, farm, trade, and explore. Discover guides, tips, and rare items to master the game!",
     images: [
@@ -49,8 +49,8 @@ export const metadata = {
   },
   icons: {
     icon: [
-      { url: "/logo.webp", sizes: "32x32", type: "image/png" },
-      { url: "/logo.webp", sizes: "16x16", type: "image/png" },
+      { url: "/logo-v1.webp", sizes: "32x32", type: "image/webp" },
+      { url: "/logo-v1.webp", sizes: "16x16", type: "image/webp" },
     ],
   },
 };

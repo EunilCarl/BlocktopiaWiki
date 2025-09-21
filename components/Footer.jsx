@@ -7,7 +7,7 @@ const Footer = () => {
     <footer className="border-t bg-muted/50 mt-16">
       <div className="container mx-auto px-4 py-8 text-center">
         <div className="flex items-center justify-center space-x-2 mb-4">
-          <img src="/logo.webp" alt="Blocktopia Logo" className="h-10 w-15" />
+          <img src="/logo-v1.webp" alt="Blocktopia Logo" className="h-10 w-15" />
           <span className="text-xl font-bold">Blocktopia Wiki</span>
         </div>
 

@@ -10,7 +10,7 @@ const Header = ({ items }) => {
           {/* Logo */}
           <a href="/">
             <img
-              src="/logo.webp"
+              src="/logo-v1.webp"
               alt="Blocktopia Logo"
               className="h-12 w-18 cursor-pointer"
             />
