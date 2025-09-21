@@ -1,20 +1,9 @@
-import { createClient } from "@supabase/supabase-js";
+// pages/sitemap.xml.js
 import { supabase } from "@/lib/supabaseClient";
 
-export default async function handler(req, res) {
-  const { data: items, error } = await supabase
-    .from("items")
-    .select("image");
-
-  if (error) {
-    console.error("Error fetching items for sitemap:", error.message);
-    res.status(500).send("Error generating sitemap");
-    return;
-  }
-
+function generateSiteMap(items) {
   const baseUrl = "https://blocktopia-wiki.vercel.app";
 
-  // turn Supabase image path into slug
   const urls = items
     .map((item) => {
       const slug = item.image.replace(/\.[^/.]+$/, ""); // remove extension
@@ -27,7 +16,7 @@ export default async function handler(req, res) {
     })
     .join("\n");
 
-  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+  return `<?xml version="1.0" encoding="UTF-8"?>
     <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
       <url>
         <loc>${baseUrl}</loc>
@@ -36,8 +25,24 @@ export default async function handler(req, res) {
       </url>
       ${urls}
     </urlset>`;
+}
 
-  res.setHeader("Content-Type", "application/xml");
+export async function getServerSideProps({ res }) {
+  const { data: items, error } = await supabase.from("items").select("image");
+
+  if (error) {
+    console.error("Error fetching items for sitemap:", error.message);
+  }
+
+  const sitemap = generateSiteMap(items || []);
+
+  res.setHeader("Content-Type", "text/xml");
   res.write(sitemap);
   res.end();
+
+  return { props: {} };
+}
+
+export default function Sitemap() {
+  return null;
 }
