@@ -373,7 +373,7 @@ const getOgImage = (path) => {
                                   },
                                   {
                                     label: "Growth Time",
-                                    value: selectedItem.growTime,
+                                    value: selectedItem.growtime,
                                   },
                                   {
                                     label: "Splicing Recipe",
