@@ -139,7 +139,9 @@ const ItemPage = ({ item }) => {
     <>
       <Head>
         <title>
-          {item ? `${item.name} | Blocktopia Wiki` : "Blocktopia Wiki"}
+          {selectedItem
+            ? `${selectedItem.name} | Blocktopia Wiki`
+            : "Blocktopia Wiki"}
         </title>
         <meta
           name="description"
@@ -151,10 +153,12 @@ const ItemPage = ({ item }) => {
         <meta property="og:title" content={`${item?.name} | Blocktopia Wiki`} />
         <meta property="og:description" content={item?.description} />
         <meta property="og:image" content={getImageUrl(item?.image)} />
-        <meta
-          property="og:url"
-          content={`https://blocktopia-wiki.vercel.app/items/${selectedItem?.slug}`}
-        />
+       <meta
+    property="og:url"
+    content={`https://blocktopia-wiki.vercel.app/items/${encodeURIComponent(
+      item?.name || ""
+    )}`}
+  />
         <meta name="twitter:card" content="summary_large_image" />
 
         <meta
@@ -519,26 +523,31 @@ const WelcomeCard = () => (
 );
 
 export async function getServerSideProps({ params }) {
-  const name = decodeURIComponent(params.slug?.[0] || "");
+  // take the last slug part (e.g. "rock" from /items/block/rock)
+  const rawSlug = params.slug ? params.slug[params.slug.length - 1] : "";
+  const name = decodeURIComponent(rawSlug);
 
-  const { data: items } = await supabase.from("items").select("*");
-
-  const { data: currentItem, error } = await supabase
+  const { data: items, error: itemsError } = await supabase
     .from("items")
-    .select("*")
-    .eq("name", name)   // ✅ use name instead of slug
-    .single();
+    .select("*");
 
-  console.log("SSR item:", currentItem, "error:", error);
+  if (itemsError) {
+    console.error(itemsError);
+    return { props: { item: null, items: [] } };
+  }
+
+  // find the item where the name matches (case-insensitive)
+  const currentItem = items.find(
+    (i) => i.name.toLowerCase() === name.toLowerCase()
+  );
 
   return {
     props: {
       item: currentItem || null,
-      items: items || [],
+      items,
     },
   };
 }
-
 
 export default ItemPage;
 
