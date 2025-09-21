@@ -154,6 +154,13 @@ const ItemPage = ({ item }) => {
     path
       ? supabase.storage.from("items").getPublicUrl(path).data.publicUrl
       : "";
+// Get OG image URL with proper size for social previews
+const getOgImage = (path) => {
+  if (!path) return "/logo-v1.webp";
+  const { data } = supabase.storage.from("items").getPublicUrl(path);
+  return `${data.publicUrl}?width=1200&height=630&resize=cover`;
+};
+
 
   return (
     <>
@@ -179,15 +186,10 @@ const ItemPage = ({ item }) => {
             "Blocktopia Wiki: Master splicing, find every item, and learn the best farmable secrets in the ultimate Roblox-style sandbox MMORPG."
           }
         />
-        <meta
-          property="og:image"
-          content={
-            item?.image
-              ? supabase.storage.from("items").getPublicUrl(item.image).data
-                  .publicUrl
-              : "/logo-v1.webp"
-          }
-        />
+<meta
+  property="og:image"
+  content={item?.image ? getOgImage(item.image) : "/logo-v1.webp"}
+/>
         <meta
           property="og:url"
           content={`https://blocktopia-wiki.vercel.app/items/${encodeURIComponent(
@@ -207,14 +209,10 @@ const ItemPage = ({ item }) => {
             "Blocktopia Wiki: Master splicing, find every item, and learn the best farmable secrets in the ultimate Roblox-style sandbox MMORPG."
           }
         />
-         <meta
-    property="twitter:image"
-    content={
-      item?.image
-        ? supabase.storage.from("items").getPublicUrl(item.image).data.publicUrl
-        : "/logo-v1.webp"
-    }
-  />
+<meta
+  property="twitter:image"
+  content={item?.image ? getOgImage(item.image) : "/logo-v1.webp"}
+/>
       </Head>
       <div className="min-h-screen bg-background flex flex-col">
         <Header items={items} darkMode={darkMode} setDarkMode={setDarkMode} />
