@@ -34,6 +34,13 @@ import { Skeleton } from "@/ui/skeleton";
 import { usePathname } from "next/navigation";
 
 const ItemPage = ({ item }) => {
+  const slugify = (str = "") =>
+  str
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")      // replace spaces with hyphens
+    .replace(/[^\w-]+/g, "");  // remove special chars
+
   const pathname = usePathname();
   const currentUrl = `https://blocktopia-wiki.vercel.app${pathname}`;
   const [selectedItem, setSelectedItem] = useState(item);
@@ -76,27 +83,40 @@ const ItemPage = ({ item }) => {
 
   // Fetch items
   useEffect(() => {
-    const fetchItems = async () => {
-      setLoading(true); // start loader
-      const { data, error } = await supabase
-        .from("items")
-        .select("*")
-        .order("id");
-      if (error) {
-        console.error(error);
-        setLoading(false);
-        return;
-      }
-      setItems(data);
-      const slug = window.location.pathname.replace(/^\/items\//, "");
-      const current = data.find(
-        (i) => i.image?.replace(/\.[^/.]+$/, "") === slug
-      );
-      setSelectedItem(current);
-      setLoading(false); // stop loader
-    };
-    fetchItems();
-  }, []);
+  const fetchItems = async () => {
+    setLoading(true);
+
+    const { data, error } = await supabase
+      .from("items")
+      .select("*")
+      .order("id");
+
+    if (error) {
+      console.error(error);
+      setLoading(false);
+      return;
+    }
+
+    setItems(data);
+
+    // Get slug from URL: /items/lock/worldlock → lock/worldlock
+    const slug = decodeURIComponent(
+      window.location.pathname.replace(/^\/items\//, "")
+    );
+
+    // Match with image column (remove extension before comparing)
+    const current = data.find((i) => {
+      const imagePath = i.image?.replace(/\.[^/.]+$/, ""); // strip extension
+      return imagePath === slug;
+    });
+
+    setSelectedItem(current);
+    setLoading(false);
+  };
+
+  fetchItems();
+}, []);
+
 
   // Dark mode toggle
   useEffect(() => {
@@ -139,34 +159,62 @@ const ItemPage = ({ item }) => {
     <>
       <Head>
         <title>
-          {selectedItem
-            ? `${selectedItem.name} | Blocktopia Wiki`
-            : "Blocktopia Wiki"}
+          {item ? `${item.name} | Blocktopia Wiki` : "Blocktopia Wiki"}
         </title>
+          <link rel="icon" href="/logo-v1.webp" type="image/webp" />
         <meta
           name="description"
-          content={item?.description || "Your ultimate guide to Blocktopia"}
+          content={
+            item?.description ||
+            "Blocktopia Wiki: Master splicing, find every item, and learn the best farmable secrets in the ultimate Roblox-style sandbox MMORPG."
+          }
         />
 
-        <link rel="icon" href="/logo-v1.webp" type="image/webp" />
         <meta property="og:type" content="website" />
         <meta property="og:title" content={`${item?.name} | Blocktopia Wiki`} />
-        <meta property="og:description" content={item?.description} />
-        <meta property="og:image" content={getImageUrl(item?.image)} />
-       <meta
-    property="og:url"
-    content={`https://blocktopia-wiki.vercel.app/items/${encodeURIComponent(
-      item?.name || ""
-    )}`}
-  />
+        <meta
+          property="og:description"
+          content={
+            item?.description ||
+            "Blocktopia Wiki: Master splicing, find every item, and learn the best farmable secrets in the ultimate Roblox-style sandbox MMORPG."
+          }
+        />
+        <meta
+          property="og:image"
+          content={
+            item?.image
+              ? supabase.storage.from("items").getPublicUrl(item.image).data
+                  .publicUrl
+              : "/logo-v1.webp"
+          }
+        />
+        <meta
+          property="og:url"
+          content={`https://blocktopia-wiki.vercel.app/items/${encodeURIComponent(
+            item?.name || ""
+          )}`}
+        />
         <meta name="twitter:card" content="summary_large_image" />
 
         <meta
           property="twitter:title"
           content={`${item?.name} | Blocktopia Wiki`}
         />
-        <meta property="twitter:description" content={item?.description} />
-        <meta property="twitter:image" content={getImageUrl(item?.image)} />
+        <meta
+          property="twitter:description"
+          content={
+            item?.description ||
+            "Blocktopia Wiki: Master splicing, find every item, and learn the best farmable secrets in the ultimate Roblox-style sandbox MMORPG."
+          }
+        />
+         <meta
+    property="twitter:image"
+    content={
+      item?.image
+        ? supabase.storage.from("items").getPublicUrl(item.image).data.publicUrl
+        : "/logo-v1.webp"
+    }
+  />
       </Head>
       <div className="min-h-screen bg-background flex flex-col">
         <Header items={items} darkMode={darkMode} setDarkMode={setDarkMode} />
@@ -523,31 +571,24 @@ const WelcomeCard = () => (
 );
 
 export async function getServerSideProps({ params }) {
-  // take the last slug part (e.g. "rock" from /items/block/rock)
-  const rawSlug = params.slug ? params.slug[params.slug.length - 1] : "";
-  const name = decodeURIComponent(rawSlug);
+  // Join path parts in case image path has folders
+  const rawSlug = params.slug ? params.slug.join("/") : "";
+  const decodedSlug = decodeURIComponent(rawSlug); // handle %20 etc.
 
-  const { data: items, error: itemsError } = await supabase
+  const { data: item, error } = await supabase
     .from("items")
-    .select("*");
+    .select("*")
+    .like("image", `${decodedSlug}.%`) // match with extension
+    .single();
 
-  if (itemsError) {
-    console.error(itemsError);
-    return { props: { item: null, items: [] } };
+  if (error) {
+    console.error(error);
+    return { props: { item: null } };
   }
 
-  // find the item where the name matches (case-insensitive)
-  const currentItem = items.find(
-    (i) => i.name.toLowerCase() === name.toLowerCase()
-  );
-
-  return {
-    props: {
-      item: currentItem || null,
-      items,
-    },
-  };
+  return { props: { item } };
 }
+
 
 export default ItemPage;
 
