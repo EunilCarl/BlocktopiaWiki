@@ -36,7 +36,7 @@ export async function getServerSideProps({ res }) {
 
   const sitemap = generateSiteMap(items || []);
 
-  res.setHeader("Content-Type", "text/xml");
+  res.setHeader("Content-Type", "application/xml");
   res.write(sitemap);
   res.end();
 
