@@ -8,9 +8,7 @@ export const AuroraText = memo(({
   speed = 1
 }) => {
   const gradientStyle = {
-    backgroundImage: `linear-gradient(135deg, ${colors.join(", ")}, ${
-      colors[0]
-    })`,
+    backgroundImage: `linear-gradient(135deg, ${colors.join(", ")}, ${colors[0]})`,
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
     animationDuration: `${10 / speed}s`,

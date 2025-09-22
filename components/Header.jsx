@@ -17,7 +17,7 @@ const Header = ({ items }) => {
           </a>
 
           <div>
-            <h1 className="text-2xl font-bold ">
+            <h1 className="text-2xl font-bold">
               <AuroraText>Blocktopia</AuroraText> Wiki
             </h1>
             <p className="text-sm text-muted-foreground hidden sm:block">
