@@ -23,7 +23,7 @@ import { supabase } from "@/lib/supabaseClient";
 import EditDialog from "./EditDialog";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-
+import sortOptions from "@/data/sortOptions";
 const Sidebar = ({
   searchQuery,
   setSearchQuery,
@@ -44,10 +44,27 @@ const Sidebar = ({
   const createdObjectUrlRef = useRef(null);
   const itemRefs = useRef({});
   const scrollRef = useRef(null);
+  const [sortValue, setSortValue] = useState("default");
 
   const router = useRouter();
   const pathname = usePathname();
+let displayedItems = [...filteredItems];
 
+
+switch (sortValue) {
+  case "name-asc":
+    displayedItems.sort((a, b) => a.name.localeCompare(b.name));
+    break;
+  case "name-desc":
+    displayedItems.sort((a, b) => b.name.localeCompare(a.name));
+    break;
+  case "rarity-asc":
+    displayedItems.sort((a, b) => a.rarity - b.rarity);
+    break;
+  case "rarity-desc":
+    displayedItems.sort((a, b) => b.rarity - a.rarity);
+    break;
+}
   // Get the current slug from the URL
   const currentRoute = pathname?.replace(/^\/items\//, "") || "";
 
@@ -160,54 +177,81 @@ const Sidebar = ({
             />
           </div>
 
-          {/* Category Filter */}
-          <div>
-            <Popover open={open} onOpenChange={setOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={open}
-                  className="w-[200px] justify-between"
-                >
-                  {categories.find((c) => c.value === value)?.label || "All"}
-                  <ChevronsUpDown className="opacity-50" />
-                </Button>
-              </PopoverTrigger>
+<div className="flex flex-col gap-3">
+  {/* Sort Dropdown */}
+  <Popover>
+    <PopoverTrigger asChild>
+      <Button variant="outline" className="w-full justify-between">
+        Sort: {sortOptions.find((s) => s.value === sortValue)?.label || "Default"}
+        <ChevronsUpDown className="opacity-50" />
+      </Button>
+    </PopoverTrigger>
+    <PopoverContent className="w-[220px] p-0">
+      <Command>
+        <CommandInput placeholder="Search sort..." className="h-9" />
+        <CommandList>
+          <CommandEmpty>No sort option.</CommandEmpty>
+          <CommandGroup heading="Sort by">
+            {sortOptions.map((s) => (
+              <CommandItem
+                key={s.value}
+                value={s.value}
+                onSelect={(val) => setSortValue(val)}
+              >
+                {s.label}
+                <Check
+                  className={cn(
+                    "ml-auto",
+                    sortValue === s.value ? "opacity-100" : "opacity-0"
+                  )}
+                />
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        </CommandList>
+      </Command>
+    </PopoverContent>
+  </Popover>
 
-              <PopoverContent className="w-[200px] p-0">
-                <Command>
-                  <CommandInput
-                    placeholder="Search category..."
-                    className="h-9"
-                  />
-                  <CommandList>
-                    <CommandEmpty>No category found.</CommandEmpty>
-                    <CommandGroup>
-                      {categories.map((cat) => (
-                        <CommandItem
-                          key={cat.value}
-                          value={cat.value}
-                          onSelect={(currentValue) => {
-                            setValue(currentValue);
-                            setOpen(false);
-                          }}
-                        >
-                          {cat.label}
-                          <Check
-                            className={cn(
-                              "ml-auto",
-                              value === cat.value ? "opacity-100" : "opacity-0"
-                            )}
-                          />
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
-          </div>
+  {/* Category Dropdown */}
+  <Popover open={open} onOpenChange={setOpen}>
+    <PopoverTrigger asChild>
+      <Button variant="outline" className="w-full justify-between">
+        Category: {categories.find((c) => c.value === value)?.label || "All"}
+        <ChevronsUpDown className="opacity-50" />
+      </Button>
+    </PopoverTrigger>
+    <PopoverContent className="w-[220px] p-0">
+      <Command>
+        <CommandInput placeholder="Search category..." className="h-9" />
+        <CommandList>
+          <CommandEmpty>No category.</CommandEmpty>
+          <CommandGroup heading="Categories">
+            {categories.map((cat) => (
+              <CommandItem
+                key={cat.value}
+                value={cat.value}
+                onSelect={(val) => {
+                  setValue(val);
+                  setOpen(false);
+                }}
+              >
+                {cat.label}
+                <Check
+                  className={cn(
+                    "ml-auto",
+                    value === cat.value ? "opacity-100" : "opacity-0"
+                  )}
+                />
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        </CommandList>
+      </Command>
+    </PopoverContent>
+  </Popover>
+</div>
+
 
           {/* Items List */}
           <div>
@@ -229,7 +273,7 @@ const Sidebar = ({
                         </CardContent>
                       </Card>
                     ))
-                  : filteredItems.map((item) => {
+                  : displayedItems.map((item) => {
                       const isActive = selectedItem?.id === item.id;
                       const slug = getSlug(item);
 

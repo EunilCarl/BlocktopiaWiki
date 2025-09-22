@@ -1,8 +1,9 @@
+"use client";
+
 import React, { useState, useEffect, useRef } from "react";
 import { Flame } from "lucide-react";
-import Head from "next/head";
 import { motion } from "framer-motion";
-import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/lib/supabaseClient";
@@ -13,27 +14,12 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Sidebar from "@/components/Sidebar";
 import CommunityThreads from "@/components/CommunityThreads";
-import { Highlighter } from "@/components/magicui/highlighter";
 import { DotPattern } from "@/components/magicui/dot-pattern";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuPortal,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import "../../app/globals.css";
-import { Skeleton } from "@/ui/skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { usePathname } from "next/navigation";
+import WelcomeCard from "@/components/WelcomeCard";
 
-const ItemPage = ({ item }) => {
+export default function ItemPage({ item }) {
   const slugify = (str = "") =>
     str
       .toLowerCase()
@@ -52,8 +38,12 @@ const ItemPage = ({ item }) => {
   const [loading, setLoading] = useState(true);
   const cardRef = useRef(null);
 
-  // Scroll to item card on mobile
-  // Scroll to item card on mobile after DOM update
+  const Section = ({ title, children }) => (
+    <div className="space-y-2">
+      <h3 className="text-xl font-semibold">{title}</h3>
+      {children}
+    </div>
+  );
   useEffect(() => {
     if (!selectedItem || window.innerWidth >= 1024) return;
 
@@ -167,59 +157,8 @@ const ItemPage = ({ item }) => {
     const { data } = supabase.storage.from("items").getPublicUrl(path);
     return `${data.publicUrl}?width=1200&height=630&resize=cover`;
   };
-
   return (
     <>
-      <Head>
-        <title>
-          {item ? `${item.name} | Blocktopia Wiki` : "Blocktopia Wiki"}
-        </title>
-        <link rel="icon" href="/logo-v1.webp" type="image/webp" />
-        <meta
-          name="description"
-          content={
-            item?.description ||
-            "Blocktopia Wiki: Master splicing, find every item, and learn the best farmable secrets in the ultimate Roblox-style sandbox MMORPG."
-          }
-        />
-
-        <meta property="og:type" content="website" />
-        <meta property="og:title" content={`${item?.name} | Blocktopia Wiki`} />
-        <meta
-          property="og:description"
-          content={
-            item?.description ||
-            "Blocktopia Wiki: Master splicing, find every item, and learn the best farmable secrets in the ultimate Roblox-style sandbox MMORPG."
-          }
-        />
-        <meta
-          property="og:image"
-          content={item?.image ? getOgImage(item.image) : "/logo-v1.webp"}
-        />
-        <meta
-          property="og:url"
-          content={`https://blocktopia-wiki.vercel.app/items/${encodeURIComponent(
-            item?.name || ""
-          )}`}
-        />
-        <meta name="twitter:card" content="summary_large_image" />
-
-        <meta
-          property="twitter:title"
-          content={`${item?.name} | Blocktopia Wiki`}
-        />
-        <meta
-          property="twitter:description"
-          content={
-            item?.description ||
-            "Blocktopia Wiki: Master splicing, find every item, and learn the best farmable secrets in the ultimate Roblox-style sandbox MMORPG."
-          }
-        />
-        <meta
-          property="twitter:image"
-          content={item?.image ? getOgImage(item.image) : "/logo-v1.webp"}
-        />
-      </Head>
       <div className="min-h-screen bg-background flex flex-col">
         <Header items={items} darkMode={darkMode} setDarkMode={setDarkMode} />
 
@@ -418,183 +357,4 @@ const ItemPage = ({ item }) => {
       </div>
     </>
   );
-};
-
-// Small reusable section wrapper
-const Section = ({ title, children }) => (
-  <div className="space-y-2">
-    <h3 className="text-xl font-semibold">{title}</h3>
-    {children}
-  </div>
-);
-
-// Welcome card (default state)
-const WelcomeCard = () => (
-  <Card className="relative text-center shadow-2xl rounded-3xl overflow-hidden bg-background/80 backdrop-blur-sm border border-muted">
-    {/* Decorative background elements */}
-    <div className="absolute inset-0 bg-primary/5 opacity-50" />
-    <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/10 rounded-full blur-3xl" />
-    <div className="absolute -bottom-20 -left-20 w-32 h-32 bg-primary/5 rounded-full blur-3xl" />
-
-    <CardContent className="relative z-10 p-8 sm:p-12 ">
-      {/* Logo with enhanced styling */}
-      <div className="relative mb-4">
-        <div className="absolute inset-0 bg-blue-400/5 rounded-2xl blur-md transform scale-200" />
-        <img
-          src="/logo-v1.webp"
-          alt="Blocktopia Logo"
-          className="relative h-25 w-35 mx-auto"
-        />
-      </div>
-
-      {/* Main title with original typography */}
-      <CardTitle className="text-3xl font-bold mb-2">
-        Welcome to{" "}
-        <Highlighter action="underline" color="#03A9F4">
-          Blocktopia Wiki
-        </Highlighter>
-      </CardTitle>
-
-      {/* Subtitle with better spacing */}
-      <p className="text-sm text-muted-foreground mb-6">
-        Your ultimate guide to farming, building, and trading in Blocktopia!
-      </p>
-
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button className="cursor-pointer" variant="outline">
-            Want to contribute?
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent
-          className="w-80 relative bg-muted/40 backdrop-blur-sm p-6 sm:p-5 rounded-xl shadow-inner max-w-xl mx-auto  hover:scale-105 transition-all duration-300 border border-muted"
-          align="center"
-        >
-          <h3 className="text-lg font-semibold">🚀 Want to contribute?</h3>
-
-          <div className="mt-4">
-            <p className="text-sm leading-relaxed mb-4">
-              Help make this wiki better! Click the{" "}
-              <span className="inline-flex items-center px-2 py-1 rounded-md bg-muted text-xs font-semibold">
-                ✏️ pencil icon
-              </span>{" "}
-              in the top-right corner of any item to add details, fix mistakes,
-              or share your knowledge.
-            </p>
-          </div>
-          <p className="text-sm text-muted-foreground text-center">
-            Message me on Discord if you want credits!
-          </p>
-          <div className="flex items-center justify-center mt-2">
-            <Button
-              variant="secondary"
-              size="sm"
-              asChild
-              className="space-x-1 text-xs"
-            >
-              <a
-                href="https://discord.com/users/748175690297376880"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <img
-                  src="https://cdn.worldvectorlogo.com/logos/discord-6.svg"
-                  alt="Discord Logo"
-                  className="h-3.5 w-3.5"
-                />
-                <span>Discord</span>
-              </a>
-            </Button>
-          </div>
-        </DropdownMenuContent>
-      </DropdownMenu>
-
-      <hr className="my-6 mb-10 border-t border-muted/50" />
-
-      {/* Features grid with cards */}
-      <div className="mb-10">
-        <h3 className="text-lg font-semibold mb-6">
-          Explore the vibrant world of Blocktopia
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-w-2xl mx-auto">
-          {[
-            {
-              icon: "https://lokegmegfgkpztijdamy.supabase.co/storage/v1/object/public/items/seed/seed.png",
-              title: "Seeds & Farming",
-              desc: "Rare splices and cultivation",
-            },
-            {
-              icon: "https://lokegmegfgkpztijdamy.supabase.co/storage/v1/object/public/items/block/bricks.png",
-              title: "Blocks & Building",
-              desc: "Decoration and construction",
-            },
-            {
-              icon: "https://lokegmegfgkpztijdamy.supabase.co/storage/v1/object/public/items/clothing/wrench.png",
-              title: "Tools & Crafting",
-              desc: "Efficient mining equipment",
-            },
-            {
-              icon: "https://lokegmegfgkpztijdamy.supabase.co/storage/v1/object/public/items/lock/worldlock.png",
-              title: "Locks & Trading",
-              desc: "Currency and world ownership",
-            },
-            {
-              icon: "https://lokegmegfgkpztijdamy.supabase.co/storage/v1/object/public/items/clothing/autumnwings.png",
-              title: "Event Items",
-              desc: "Rare collectibles and boosts",
-            },
-            {
-              icon: "https://lokegmegfgkpztijdamy.supabase.co/storage/v1/object/public/items/block/checkpoints.png",
-              title: "Game Mechanics",
-              desc: "Tips and strategies",
-            },
-          ].map((item, index) => (
-            <div
-              key={index}
-              className="bg-white/60 dark:bg-muted/60 backdrop-blur-sm rounded-xl p-3 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 border border-muted"
-            >
-              <div className="mb-2 flex justify-center">
-                {item.icon.startsWith("http") ? (
-                  <img
-                    src={item.icon}
-                    alt={item.title}
-                    className="w-8 h-8 object-contain"
-                  />
-                ) : (
-                  <span className="text-2xl">{item.icon}</span>
-                )}
-              </div>
-              <div className="font-semibold text-sm mb-1">{item.title}</div>
-              <div className="text-xs text-muted-foreground">{item.desc}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </CardContent>
-  </Card>
-);
-
-export async function getServerSideProps({ params }) {
-  // Join path parts in case image path has folders
-  const rawSlug = params.slug ? params.slug.join("/") : "";
-  const decodedSlug = decodeURIComponent(rawSlug); // handle %20 etc.
-
-  const { data: item, error } = await supabase
-    .from("items")
-    .select("*")
-    .like("image", `${decodedSlug}.%`) // match with extension
-    .single();
-
-  if (error) {
-    console.error(error);
-    return { props: { item: null } };
-  }
-
-  return { props: { item } };
 }
-
-export default ItemPage;
-
-// Remove server-side fetching, and just
-
-// fetch items on mounts
