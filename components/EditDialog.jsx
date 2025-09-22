@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabaseClient";
 import categories from "@/data/categories";
 import { Checkbox } from "@/ui/checkbox"
+import { toast } from "sonner";
 
 const EditDialog = ({
   editingItem,
@@ -34,6 +35,7 @@ const EditDialog = ({
   const [submitting, setSubmitting] = useState(false);
   const createdObjectUrlRef = useRef(null);
 
+  
   useEffect(() => {
     if (editingItem?.type) {
       // Find the matching category and set its label as default
@@ -92,83 +94,94 @@ const EditDialog = ({
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!editingItem) return;
-    setSubmitting(true);
+  e.preventDefault();
+  if (!editingItem) return;
+  setSubmitting(true);
 
-    try {
-      const formData = new FormData(e.target);
-      let newImagePath = editingItem?.image || null;
+  try {
+    const formData = new FormData(e.target);
 
-      if (file) {
-        let baseName = file.name.replace(/\s+/g, "_"); // sanitize spaces
-        let extension = "";
-        const dotIndex = baseName.lastIndexOf(".");
-        if (dotIndex !== -1) {
-          extension = baseName.substring(dotIndex); // ".png"
-          baseName = baseName.substring(0, dotIndex); // "Image"
-        }
+       let newImagePath = editingItem?.image || null;
+    if (file) {
+      let baseName = file.name.replace(/\s+/g, "_");
+      let extension = "";
+      const dotIndex = baseName.lastIndexOf(".");
+      if (dotIndex !== -1) {
+        extension = baseName.substring(dotIndex);
+        baseName = baseName.substring(0, dotIndex);
+      }
 
-        let finalName = baseName + extension;
-        let counter = 1;
+      let finalName = baseName + extension;
+      let counter = 1;
+      let uploaded = false;
+      let data, error;
 
-        // Check if file exists in 'suggestions' folder
-        const { data: existingFiles } = await supabase.storage
+      while (!uploaded) {
+        ({ data, error } = await supabase.storage
           .from("items")
-          .list("suggestions");
+          .upload(`suggestions/${finalName}`, file, { upsert: false }));
 
-        const existingNames = existingFiles.map((f) => f.name);
-
-        // Increment counter until unique name is found
-        while (existingNames.includes(finalName)) {
+        if (!error) {
+          uploaded = true;
+        } else if (error.message.includes("The resource already exists")) {
           counter++;
           finalName = `${baseName}(${counter})${extension}`;
+        } else {
+          throw error;
         }
-
-        const { data, error } = await supabase.storage
-          .from("items")
-          .upload(`suggestions/${finalName}`, file, { upsert: false });
-
-        if (error) throw error;
-        if (data?.path) newImagePath = data.path;
       }
 
-      const propsInput = formData.get("properties");
-      const propertiesArr = propsInput
-        ? propsInput
-            .toString()
-            .split(",")
-            .map((p) => p.trim())
-            .filter(Boolean)
-        : null;
-
-
-      Object.keys(payload).forEach(
-        (k) => payload[k] === undefined && delete payload[k]
-      );
-
-      const { error: insertError } = await supabase
-        .from("suggestions")
-        .insert([payload]);
-      if (insertError) throw insertError;
-
-      alert("Suggestion submitted — pending approval.");
-      setEditingItem(null);
-      setFile(null);
-      if (createdObjectUrlRef.current) {
-        try {
-          URL.revokeObjectURL(createdObjectUrlRef.current);
-        } catch {}
-        createdObjectUrlRef.current = null;
-      }
-      setPreviewUrl(null);
-    } catch (err) {
-      console.error("submit error", err);
-      alert("Failed to submit suggestion: " + (err.message || err));
-    } finally {
-      setSubmitting(false);
+      if (data?.path) newImagePath = data.path;
     }
-  };
+
+
+    const propsInput = formData.get("properties");
+    const propertiesArr = propsInput
+      ? propsInput.toString().split(",").map(p => p.trim()).filter(Boolean)
+      : null;
+
+    const payload = {
+      item_id: editingItem.id,
+      new_name: formData.get("name") || undefined,
+      new_rarity: formData.get("rarity") ? Number(formData.get("rarity")) : undefined,
+      new_type: typeValue || undefined,
+      new_description: formData.get("description") || undefined,
+      new_splicing: formData.get("splicing") || undefined,
+      new_growtime: formData.get("growTime") || undefined,
+      new_value: formData.get("value") || undefined,
+      new_properties: propertiesArr && propertiesArr.length ? propertiesArr : undefined,
+      new_image: newImagePath, // or newImagePath if you handle file upload
+      new_punch: formData.get("punch") ? Number(formData.get("punch")) : undefined,
+      new_punchpick: formData.get("punchpick") ? Number(formData.get("punchpick")) : undefined,
+      new_istradeable: formData.get("istradeable") === "on" ? true : false,
+    };
+
+    Object.keys(payload).forEach(k => payload[k] === undefined && delete payload[k]);
+
+    const { error: insertError } = await supabase
+      .from("suggestions")
+      .insert([payload]);
+    if (insertError) throw insertError;
+
+    toast("Suggestion submitted", { 
+      description: "Your suggestion will be reviewed soon.", 
+      action: { label: "Got it"},
+    });
+
+   setTimeout(() => {
+  setEditingItem(null);
+  setFile(null);
+  setPreviewUrl(null);
+}, 100); 
+
+  } catch (err) {
+    console.error("submit error", err);
+      toast.error(`Failed to submit suggestion: ${err.message || err}`);
+  } finally {
+    setSubmitting(false);
+  }
+};
+
 
   return (
     <Dialog open={!!editingItem} onOpenChange={() => setEditingItem(null)}>
@@ -181,106 +194,7 @@ const EditDialog = ({
 
         <ScrollArea className="flex-1 px-4 pb-4 sm:px-6 sm:pb-6 h-[400px]">
           <form
-            onSubmit={async (e) => {
-              e.preventDefault();
-              if (!editingItem) return;
-
-              setSubmitting(true);
-              try {
-                const formData = new FormData(e.target);
-
-                // upload image if picked
-                let newImagePath = editingItem?.image || null;
-                if (file) {
-                  let baseName = file.name.replace(/\s+/g, "_");
-                  let extension = "";
-                  const dotIndex = baseName.lastIndexOf(".");
-                  if (dotIndex !== -1) {
-                    extension = baseName.substring(dotIndex);
-                    baseName = baseName.substring(0, dotIndex);
-                  }
-
-                  let finalName = baseName + extension;
-                  let counter = 1;
-                  let uploaded = false;
-                  let data, error;
-
-                  while (!uploaded) {
-                    ({ data, error } = await supabase.storage
-                      .from("items")
-                      .upload(`suggestions/${finalName}`, file, {
-                        upsert: false,
-                      }));
-
-                    if (!error) {
-                      uploaded = true; // success
-                    } else if (
-                      error.message.includes("The resource already exists")
-                    ) {
-                      counter++;
-                      finalName = `${baseName}(${counter})${extension}`;
-                    } else {
-                      throw error; // other errors
-                    }
-                  }
-
-                  if (data?.path) newImagePath = data.path;
-                }
-
-                // properties -> array
-                const propsInput = formData.get("properties");
-                const propertiesArr = propsInput
-                  ? propsInput
-                      .toString()
-                      .split(",")
-                      .map((p) => p.trim())
-                      .filter(Boolean)
-                  : null;
-
-               const payload = {
-  item_id: editingItem.id,
-  new_name: formData.get("name") || undefined,
-  new_rarity: formData.get("rarity") ? Number(formData.get("rarity")) : undefined,
-  new_type: typeValue || undefined,
-  new_description: formData.get("description") || undefined,
-  new_splicing: formData.get("splicing") || undefined,
-  new_growtime: formData.get("growTime") || undefined,
-  new_value: formData.get("value") || undefined,
-  new_properties: propertiesArr && propertiesArr.length ? propertiesArr : undefined,
-  new_image: newImagePath,
-  new_punch: formData.get("punch") ? Number(formData.get("punch")) : undefined,
-  new_punchpick: formData.get("punchpick") ? Number(formData.get("punchpick")) : undefined,
-  new_istradeable: formData.get("istradeable") === "on" ? true : false,
-};
-
-
-                Object.keys(payload).forEach((k) => {
-                  if (payload[k] === undefined) delete payload[k];
-                });
-
-                const { error: insertError } = await supabase
-                  .from("suggestions")
-                  .insert([payload]);
-                if (insertError) throw insertError;
-
-                alert("Suggestion submitted — pending approval.");
-                setEditingItem(null);
-                setFile(null);
-
-                if (createdObjectUrlRef.current) {
-                  try {
-                    URL.revokeObjectURL(createdObjectUrlRef.current);
-                  } catch {}
-                  createdObjectUrlRef.current = null;
-                }
-                setPreviewUrl(null);
-              } catch (err) {
-                console.error("submit error", err);
-                alert("Failed to submit suggestion: " + (err.message || err));
-              } finally {
-                setSubmitting(false);
-              }
-            }}
+            onSubmit={handleSubmit }
             className="space-y-4 sm:space-y-6 pt-4"
           >
             {/* Responsive Grid - Stack on mobile, 2 columns on larger screens */}
@@ -488,9 +402,9 @@ const EditDialog = ({
 
                     const maxSizeMB = 5;
                     if (f.size / 1024 / 1024 > maxSizeMB) {
-                      alert(
-                        `File is too large. Maximum allowed is ${maxSizeMB} MB.`
-                      );
+                     setTimeout(() => {
+  toast.error(`File is too large. Maximum allowed is ${maxSizeMB} MB.`);
+}, 0);
                       e.target.value = null; // reset input
                       setFile(null);
                       setPreviewUrl(

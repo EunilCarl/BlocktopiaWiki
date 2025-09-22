@@ -2,8 +2,5 @@
 User-agent: *
 Allow: /
 
-# Host
-Host: https://blocktopia-wiki.vercel.app/
-
 # Sitemaps
 Sitemap: https://blocktopia-wiki.vercel.app/sitemap.xml

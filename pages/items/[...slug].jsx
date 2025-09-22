@@ -35,11 +35,11 @@ import { usePathname } from "next/navigation";
 
 const ItemPage = ({ item }) => {
   const slugify = (str = "") =>
-  str
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, "-")      // replace spaces with hyphens
-    .replace(/[^\w-]+/g, "");  // remove special chars
+    str
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, "-") // replace spaces with hyphens
+      .replace(/[^\w-]+/g, ""); // remove special chars
 
   const pathname = usePathname();
   const currentUrl = `https://blocktopia-wiki.vercel.app${pathname}`;
@@ -83,40 +83,47 @@ const ItemPage = ({ item }) => {
 
   // Fetch items
   useEffect(() => {
-  const fetchItems = async () => {
-    setLoading(true);
+    const fetchItems = async () => {
+      setLoading(true);
 
-    const { data, error } = await supabase
-      .from("items")
-      .select("*")
-      .order("id");
+      const { data, error } = await supabase
+        .from("items")
+        .select("*")
+        .order("id");
 
-    if (error) {
-      console.error(error);
+      if (error) {
+        console.error(error);
+        setLoading(false);
+        return;
+      }
+
+      setItems(data);
+
+      // Get slug from URL: /items/lock/worldlock → lock/worldlock
+      const slug = decodeURIComponent(
+        window.location.pathname.replace(/^\/items\//, "")
+      );
+
+      // Match with image column (remove extension before comparing)
+      const current = data.find((i) => {
+        const imagePath = i.image?.replace(/\.[^/.]+$/, ""); // strip extension
+        return imagePath === slug;
+      });
+
+      setSelectedItem(current);
       setLoading(false);
-      return;
+    };
+
+    fetchItems();
+  }, []);
+
+  useEffect(() => {
+    if (selectedItem) {
+      document.title = `${selectedItem.name} | Blocktopia Wiki`;
+    } else {
+      document.title = "Blocktopia Wiki";
     }
-
-    setItems(data);
-
-    // Get slug from URL: /items/lock/worldlock → lock/worldlock
-    const slug = decodeURIComponent(
-      window.location.pathname.replace(/^\/items\//, "")
-    );
-
-    // Match with image column (remove extension before comparing)
-    const current = data.find((i) => {
-      const imagePath = i.image?.replace(/\.[^/.]+$/, ""); // strip extension
-      return imagePath === slug;
-    });
-
-    setSelectedItem(current);
-    setLoading(false);
-  };
-
-  fetchItems();
-}, []);
-
+  }, [selectedItem]);
 
   // Dark mode toggle
   useEffect(() => {
@@ -154,13 +161,12 @@ const ItemPage = ({ item }) => {
     path
       ? supabase.storage.from("items").getPublicUrl(path).data.publicUrl
       : "";
-// Get OG image URL with proper size for social previews
-const getOgImage = (path) => {
-  if (!path) return "/logo-v1.webp";
-  const { data } = supabase.storage.from("items").getPublicUrl(path);
-  return `${data.publicUrl}?width=1200&height=630&resize=cover`;
-};
-
+  // Get OG image URL with proper size for social previews
+  const getOgImage = (path) => {
+    if (!path) return "/logo-v1.webp";
+    const { data } = supabase.storage.from("items").getPublicUrl(path);
+    return `${data.publicUrl}?width=1200&height=630&resize=cover`;
+  };
 
   return (
     <>
@@ -168,7 +174,7 @@ const getOgImage = (path) => {
         <title>
           {item ? `${item.name} | Blocktopia Wiki` : "Blocktopia Wiki"}
         </title>
-          <link rel="icon" href="/logo-v1.webp" type="image/webp" />
+        <link rel="icon" href="/logo-v1.webp" type="image/webp" />
         <meta
           name="description"
           content={
@@ -186,10 +192,10 @@ const getOgImage = (path) => {
             "Blocktopia Wiki: Master splicing, find every item, and learn the best farmable secrets in the ultimate Roblox-style sandbox MMORPG."
           }
         />
-<meta
-  property="og:image"
-  content={item?.image ? getOgImage(item.image) : "/logo-v1.webp"}
-/>
+        <meta
+          property="og:image"
+          content={item?.image ? getOgImage(item.image) : "/logo-v1.webp"}
+        />
         <meta
           property="og:url"
           content={`https://blocktopia-wiki.vercel.app/items/${encodeURIComponent(
@@ -209,10 +215,10 @@ const getOgImage = (path) => {
             "Blocktopia Wiki: Master splicing, find every item, and learn the best farmable secrets in the ultimate Roblox-style sandbox MMORPG."
           }
         />
-<meta
-  property="twitter:image"
-  content={item?.image ? getOgImage(item.image) : "/logo-v1.webp"}
-/>
+        <meta
+          property="twitter:image"
+          content={item?.image ? getOgImage(item.image) : "/logo-v1.webp"}
+        />
       </Head>
       <div className="min-h-screen bg-background flex flex-col">
         <Header items={items} darkMode={darkMode} setDarkMode={setDarkMode} />
@@ -586,7 +592,6 @@ export async function getServerSideProps({ params }) {
 
   return { props: { item } };
 }
-
 
 export default ItemPage;
 

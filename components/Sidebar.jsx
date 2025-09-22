@@ -238,34 +238,24 @@ const Sidebar = ({
                           key={item.id}
                           ref={(el) => (itemRefs.current[item.id] = el)}
                           onClick={(e) => {
-                            e.preventDefault();
-
                             setSelectedItem(item); // immediately update UI
-                       
-                            // replace with conditional rendering so item shows instantly if already in state
-
-                            // update URL without refresh
-                            const slug = getSlug(item);
-                            router.push(`/items/${slug}`, {
-                              shallow: true,
-                              scroll: false,
-                            });
+                            if (typeof window !== "undefined") {
+                              const slug = getSlug(item);
+                              window.history.pushState(
+                                null,
+                                "",
+                                `/items/${slug}`
+                              );
+                            }
 
                             // scroll on mobile
-                            if (
-                              typeof window !== "undefined" &&
-                              window.innerWidth < 1024
-                            ) {
-                              const scrollToItem = () => {
-                                const el = itemRefs.current[item.id];
-                                if (el)
-                                  el.scrollIntoView({
-                                    behavior: "smooth",
-                                    block: "center",
-                                  });
-                              };
-                              requestAnimationFrame(scrollToItem);
-                              setTimeout(scrollToItem, 50);
+                            if (window.innerWidth < 1024) {
+                              const el = itemRefs.current[item.id];
+                              if (el)
+                                el.scrollIntoView({
+                                  behavior: "smooth",
+                                  block: "center",
+                                });
                             }
                           }}
                           className={cn(
