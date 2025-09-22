@@ -4,16 +4,20 @@ module.exports = {
   generateRobotsTxt: true,
   sitemapSize: 5000,
   robotsTxtOptions: {
+    policies: [
+      { userAgent: '*', allow: '/' },
+    ],
     additionalSitemaps: [
       'https://blocktopia-wiki.vercel.app/sitemap.xml',
     ],
-    policies: [
-      {
-        userAgent: '*',
-        allow: '/',
-      },
-    ],
-    // This removes the default Host line
-    includeNonIndexSitemaps: false,
+    transform: async (config, path) => {
+      // Return exactly what you want
+      return `# *
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://blocktopia-wiki.vercel.app/sitemap.xml`;
+    },
   },
 };
