@@ -1,23 +1,13 @@
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
-  siteUrl: 'https://blocktopia-wiki.vercel.app',
+  siteUrl: "https://blocktopia-wiki.vercel.app",
   generateRobotsTxt: true,
   sitemapSize: 5000,
   robotsTxtOptions: {
+    additionalSitemaps: ["https://blocktopia-wiki.vercel.app/sitemap.xml"],
     policies: [
-      { userAgent: '*', allow: '/' },
+      { userAgent: "*", allow: "/" }
     ],
-    additionalSitemaps: [
-      'https://blocktopia-wiki.vercel.app/sitemap.xml',
-    ],
-    transform: async (config, path) => {
-      // Return exactly what you want
-      return `# *
-User-agent: *
-Allow: /
-
-# Sitemaps
-Sitemap: https://blocktopia-wiki.vercel.app/sitemap.xml`;
-    },
+    // remove `host` completely to avoid Host line
   },
 };
