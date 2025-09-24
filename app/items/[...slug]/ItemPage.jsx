@@ -18,7 +18,7 @@ import { DotPattern } from "@/components/magicui/dot-pattern";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePathname } from "next/navigation";
 import WelcomeCard from "@/components/WelcomeCard";
-
+import Script from "next/script";
 export default function ItemPage({ item }) {
   const slugify = (str = "") =>
     str
@@ -107,13 +107,6 @@ export default function ItemPage({ item }) {
     fetchItems();
   }, []);
 
-  useEffect(() => {
-    if (selectedItem) {
-      document.title = `${selectedItem.name} | Blocktopia Wiki`;
-    } else {
-      document.title = "Blocktopia Wiki";
-    }
-  }, [selectedItem]);
 
   // Dark mode toggle
   useEffect(() => {
@@ -355,6 +348,15 @@ export default function ItemPage({ item }) {
 
         <Footer />
       </div>
+         <Script id="ld-json" type="application/ld+json">
+        {JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Product",
+          name: item?.name,
+          description: item?.description,
+          image: getImageUrl(item?.image),
+        })}
+      </Script>
     </>
   );
 }
