@@ -331,7 +331,7 @@ useEffect(() => {
       <div
         ref={containerRef}
         className={`overflow-hidden bg-white rounded-xl shadow-sm ${
-          isFullscreen ? "fixed inset-0  h-screen w-screen rounded-none" : "lg:m-30 h-[800px] flex items-center justify-center"
+          isFullscreen ? "fixed inset-0  h-screen w-screen rounded-none" : "lg:m-30 h-[800px] flex  justify-center"
         }`}
       >
         <div ref={contentRef} className="min-w-max px-20 py-12 ">
