@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { AnimatedThemeToggler } from "@/components/magicui/animated-theme-toggler";
 import { AuroraText } from "@/components/magicui/aurora-text";

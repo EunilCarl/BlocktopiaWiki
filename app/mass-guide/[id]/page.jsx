@@ -8,7 +8,8 @@ import { useState, useEffect, useRef, use } from "react";
 import { ZoomIn, ZoomOut, Maximize2, Minimize2, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Panzoom from "@panzoom/panzoom";
-
+import { DotPattern } from "@/components/magicui/dot-pattern"
+import { cn } from "@/lib/utils"
 /* ------------------ Tree Builder (unchanged) ------------------ */
 function buildTree(item, allItems, visited = new Set(), uniqueIdCounter = { value: 1000000 }, path = "") {
   if (!item || !item.splicing || item.splicing === "N/A") {
@@ -273,6 +274,7 @@ useEffect(() => {
   const handleZoomOut = () => panzoomRef.current?.zoomOut();
   const handleResetZoom = () => panzoomRef.current?.reset();
 
+  
   /* ---------- Completion ---------- */
   const handleToggleComplete = (itemId) => {
     setCompletedItems((prev) => {
@@ -312,36 +314,56 @@ useEffect(() => {
       </div>
 
       {/* Controls */}
-      <div className="absolute top-4 right-8 z-20 flex gap-2">
-        <Button variant="outline" size="sm" onClick={handleZoomOut}>
-          <ZoomOut className="w-4 h-4" />
-        </Button>
-        <Button variant="outline" size="sm" onClick={handleResetZoom}>
-          <RotateCcw className="w-4 h-4" />
-        </Button>
-        <Button variant="outline" size="sm" onClick={handleZoomIn}>
-          <ZoomIn className="w-4 h-4" />
-        </Button>
-        <Button variant="outline" size="sm" onClick={() => setIsFullscreen((f) => !f)}>
-          {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
-        </Button>
-      </div>
+  <div
+  ref={containerRef}
+  className={cn(
+    "relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-xl shadow-md transition-all duration-300",
+    isFullscreen
+      ? "fixed inset-0 z-30 h-screen w-screen rounded-none"
+      : "lg:mx-24 h-[800px] flex"
+  )}
+>
+  {/* Dot Pattern background */}
+  <DotPattern
+    className={cn(
+      "absolute inset-0 opacity-40 pointer-events-none [mask-image:radial-gradient(800px_circle_at_center,white,transparent)]"
+    )}
+  />
 
-      {/* Tree */}
-      <div
-        ref={containerRef}
-        className={`overflow-hidden bg-white rounded-xl shadow-sm ${
-          isFullscreen ? "fixed inset-0  h-screen w-screen rounded-none" : "lg:m-30 h-[800px] flex  justify-center"
-        }`}
-      >
-        <div ref={contentRef} className="min-w-max px-20 py-12 ">
-          {tree && (
-            <div className="flex justify-center">
-              <TreeNode node={tree} getImageUrl={getImageUrl} completedItems={completedItems} onToggleComplete={handleToggleComplete} />
-            </div>
-          )}
-        </div>
+  {/* Controls — now functional inside container */}
+  <div className="absolute top-4 right-6 z-20 flex gap-2 pointer-events-auto">
+    <Button variant="outline" size="sm" onClick={handleZoomOut}>
+      <ZoomOut className="w-4 h-4" />
+    </Button>
+    <Button variant="outline" size="sm" onClick={handleResetZoom}>
+      <RotateCcw className="w-4 h-4" />
+    </Button>
+    <Button variant="outline" size="sm" onClick={handleZoomIn}>
+      <ZoomIn className="w-4 h-4" />
+    </Button>
+    <Button variant="outline" size="sm" onClick={() => setIsFullscreen((f) => !f)}>
+      {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+    </Button>
+  </div>
+
+  {/* Zoomable Content */}
+  <div
+    ref={contentRef}
+    className="relative z-10 min-w-max px-20 py-12 select-none"
+  >
+    {tree && (
+      <div className="flex justify-center">
+        <TreeNode
+          node={tree}
+          getImageUrl={getImageUrl}
+          completedItems={completedItems}
+          onToggleComplete={handleToggleComplete}
+        />
       </div>
-    </div>
+    )}
+  </div>
+</div>
+
+</div>
   );
 }
