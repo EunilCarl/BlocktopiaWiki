@@ -1,13 +1,48 @@
 "use client";
-
+import { Megaphone } from "lucide-react";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Highlighter } from "@/components/magicui/highlighter";
+
+const features = [
+  {
+    icon: "https://lokegmegfgkpztijdamy.supabase.co/storage/v1/object/public/items/seed/seed.png",
+    title: "Seeds & Farming",
+    desc: "Rare splices and cultivation",
+  },
+  {
+    icon: "https://lokegmegfgkpztijdamy.supabase.co/storage/v1/object/public/items/block/bricks.png",
+    title: "Blocks & Building",
+    desc: "Decoration and construction",
+  },
+  {
+    icon: "https://lokegmegfgkpztijdamy.supabase.co/storage/v1/object/public/items/clothing/wrench.png",
+    title: "Tools & Crafting",
+    desc: "Efficient mining equipment",
+  },
+  {
+    icon: "https://lokegmegfgkpztijdamy.supabase.co/storage/v1/object/public/items/lock/worldlock.png",
+    title: "Locks & Trading",
+    desc: "Currency and world ownership",
+  },
+  {
+    icon: "https://lokegmegfgkpztijdamy.supabase.co/storage/v1/object/public/items/clothing/autumnwings.png",
+    title: "Event Items",
+    desc: "Rare collectibles and boosts",
+  },
+  {
+    icon: "https://lokegmegfgkpztijdamy.supabase.co/storage/v1/object/public/items/block/checkpoints.png",
+    title: "Game Mechanics",
+    desc: "Tips and strategies",
+  },
+];
 
 const WelcomeCard = () => (
   <Card className="relative text-center shadow-2xl rounded-3xl overflow-hidden bg-background/80 backdrop-blur-sm border border-muted">
@@ -38,6 +73,7 @@ const WelcomeCard = () => (
         Your ultimate guide to farming, building, and trading in Blocktopia!
       </p>
 
+      {/* Contribute Dropdown */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button className="cursor-pointer" variant="outline">
@@ -49,16 +85,14 @@ const WelcomeCard = () => (
           align="center"
         >
           <h3 className="text-lg font-semibold">🚀 Want to contribute?</h3>
-          <div className="mt-4">
-            <p className="text-sm leading-relaxed mb-4">
-              Help make this wiki better! Click the{" "}
-              <span className="inline-flex items-center px-2 py-1 rounded-md bg-muted text-xs font-semibold">
-                ✏️ pencil icon
-              </span>{" "}
-              in the top-right corner of any item to add details, fix mistakes,
-              or share your knowledge.
-            </p>
-          </div>
+          <p className="text-sm leading-relaxed mt-4 mb-4">
+            Help make this wiki better! Click the{" "}
+            <span className="inline-flex items-center px-2 py-1 rounded-md bg-muted text-xs font-semibold">
+              ✏️ pencil icon
+            </span>{" "}
+            in the top-right corner of any item to add details, fix mistakes, or
+            share your knowledge.
+          </p>
           <p className="text-sm text-muted-foreground text-center">
             Message me on Discord if you want credits!
           </p>
@@ -94,52 +128,17 @@ const WelcomeCard = () => (
           Explore the vibrant world of Blocktopia
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-w-2xl mx-auto">
-          {[
-            {
-              icon: "https://lokegmegfgkpztijdamy.supabase.co/storage/v1/object/public/items/seed/seed.png",
-              title: "Seeds & Farming",
-              desc: "Rare splices and cultivation",
-            },
-            {
-              icon: "https://lokegmegfgkpztijdamy.supabase.co/storage/v1/object/public/items/block/bricks.png",
-              title: "Blocks & Building",
-              desc: "Decoration and construction",
-            },
-            {
-              icon: "https://lokegmegfgkpztijdamy.supabase.co/storage/v1/object/public/items/clothing/wrench.png",
-              title: "Tools & Crafting",
-              desc: "Efficient mining equipment",
-            },
-            {
-              icon: "https://lokegmegfgkpztijdamy.supabase.co/storage/v1/object/public/items/lock/worldlock.png",
-              title: "Locks & Trading",
-              desc: "Currency and world ownership",
-            },
-            {
-              icon: "https://lokegmegfgkpztijdamy.supabase.co/storage/v1/object/public/items/clothing/autumnwings.png",
-              title: "Event Items",
-              desc: "Rare collectibles and boosts",
-            },
-            {
-              icon: "https://lokegmegfgkpztijdamy.supabase.co/storage/v1/object/public/items/block/checkpoints.png",
-              title: "Game Mechanics",
-              desc: "Tips and strategies",
-            },
-          ].map((item, index) => (
+          {features.map((item, index) => (
             <div
               key={index}
               className="bg-white/60 dark:bg-muted/60 backdrop-blur-sm rounded-xl p-3 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 border border-muted"
             >
               <div className="mb-2 flex justify-center">
-                {item.icon.startsWith("http") ? (
-                  <img
-                    src={item.icon}
-                    alt={item.title}
-                    className="w-8 h-8 object-contain"
-                  />
-                ) : (
-                  <span className="text-2xl">{item.icon}</span>
-                )}
+                <img
+                  src={item.icon}
+                  alt={item.title}
+                  className="w-8 h-8 object-contain"
+                />
               </div>
               <div className="font-semibold text-sm mb-1">{item.title}</div>
               <div className="text-xs text-muted-foreground">{item.desc}</div>
@@ -147,6 +146,37 @@ const WelcomeCard = () => (
           ))}
         </div>
       </div>
+
+     {/* Modern New Features Card */}
+<Card className="relative bg-gradient-to-br dark:from-muted/50 dark:to-muted/40 backdrop-blur-md p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-shadow duration-300 max-w-lg mx-auto mb-6 border dark:border-muted/40">
+  {/* Header with icon */}
+  <div className="flex items-center justify-center gap-2 mb-4">
+    <Megaphone className="w-6 h-6 text-orange-500" />
+    <CardTitle className="text-md font-bold">Exclusive New Features</CardTitle>
+  </div>
+
+
+  {/* Mass-guide Button */}
+  <div className="relative flex justify-center">
+    <Button
+     variant="outline"
+  asChild
+ 
+>
+
+      <Link href="/mass-guide" className="flex items-center justify-center relative">
+        Mass Guide
+        <Badge
+        variant="secondary"
+        className="absolute -top-2 -right-5 bg-amber-500 text-[11px] font-bold text-white dark:bg-amber-600  px-1.5 py-0.5 shadow-md animate-pulse"
+      >
+          Beta
+        </Badge>
+      </Link>
+    </Button>
+  </div>
+</Card>
+
     </CardContent>
   </Card>
 );
