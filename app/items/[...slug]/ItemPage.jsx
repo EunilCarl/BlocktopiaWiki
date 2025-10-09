@@ -107,7 +107,6 @@ export default function ItemPage({ item }) {
     fetchItems();
   }, []);
 
-
   // Dark mode toggle
   useEffect(() => {
     document.documentElement.classList.toggle("dark", darkMode);
@@ -348,13 +347,16 @@ export default function ItemPage({ item }) {
 
         <Footer />
       </div>
-         <Script id="ld-json" type="application/ld+json">
+      <Script id="ld-json" type="application/ld+json">
         {JSON.stringify({
           "@context": "https://schema.org",
-          "@type": "Product",
-          name: item?.name,
-          description: item?.description,
-          image: getImageUrl(item?.image),
+          "@type": "CreativeWork",
+          name: selectedItem?.name || "Blocktopia Item",
+          description:
+            selectedItem?.description ||
+            "Learn about this item in Blocktopia Wiki.",
+          image: getImageUrl(selectedItem?.image),
+          url: currentUrl,
         })}
       </Script>
     </>
