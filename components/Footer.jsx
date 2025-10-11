@@ -1,13 +1,21 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, MessageSquare } from "lucide-react";
+import Image from "next/image";
 
 const Footer = () => {
   return (
     <footer className="border-t bg-muted/50 mt-16">
       <div className="container mx-auto px-4 py-8 text-center">
         <div className="flex items-center justify-center space-x-2 mb-4">
-          <img src="/logo-v1.webp" alt="Blocktopia Logo" className="h-10 w-15" />
+          <Image
+            src="/logo-v1.webp"
+            alt="Blocktopia Logo"
+            width={40}
+            height={40}
+            loading="lazy" // ✅ Footer images can load lazily
+            className="h-10 w-auto"
+          />
           <span className="text-xl font-bold">Blocktopia Wiki</span>
         </div>
 

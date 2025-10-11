@@ -57,8 +57,8 @@ const WelcomeCard = () => (
       <div className="relative mb-4">
         <div className="absolute inset-0 bg-blue-400/5 rounded-2xl blur-md transform scale-200" />
         <Image
-          width={140}
-          height={140}
+          width={384}
+          height={256}
           priority
           src="/logo-v1.webp"
           alt="Blocktopia Logo"

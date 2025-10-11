@@ -1,8 +1,7 @@
-"use client";
-
 import React from "react";
 import { AnimatedThemeToggler } from "@/components/magicui/animated-theme-toggler";
 import { AuroraText } from "@/components/magicui/aurora-text";
+import Image from "next/image";
 
 const Header = ({ items }) => {
   return (
@@ -11,10 +10,13 @@ const Header = ({ items }) => {
         <div className="flex items-center space-x-4">
           {/* Logo */}
           <a href="/">
-            <img
+            <Image
               src="/logo-v1.webp"
               alt="Blocktopia Logo"
-              className="h-12 w-18 cursor-pointer"
+              width={72}
+              height={72}
+              priority
+              className="h-12 w-auto cursor-pointer"
             />
           </a>
 

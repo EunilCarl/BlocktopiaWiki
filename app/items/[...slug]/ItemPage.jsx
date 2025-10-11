@@ -19,6 +19,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { usePathname } from "next/navigation";
 import WelcomeCard from "@/components/WelcomeCard";
 import Script from "next/script";
+import Image from "next/image";
 export default function ItemPage({ item }) {
   const slugify = (str = "") =>
     str
@@ -210,11 +211,16 @@ export default function ItemPage({ item }) {
                             )}
                           />
                           <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-6 space-y-4 sm:space-y-0">
-                            <img
+                            <Image
                               src={getImageUrl(selectedItem.image)}
                               alt={selectedItem.name}
+                              width={128}
+                              height={128}
+                              quality={85}
                               className="w-24 h-24 sm:w-32 sm:h-32 object-contain rounded-lg backdrop-blur transition-transform hover:scale-105"
+                              priority
                             />
+
                             <div className="flex-1">
                               <h2 className="text-2xl sm:text-4xl font-bold mb-2">
                                 {selectedItem.name}
