@@ -24,6 +24,7 @@ import EditDialog from "./EditDialog";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import sortOptions from "@/data/sortOptions";
+import Image from "next/image";
 const Sidebar = ({
   searchQuery,
   setSearchQuery,
@@ -48,23 +49,22 @@ const Sidebar = ({
 
   const router = useRouter();
   const pathname = usePathname();
-let displayedItems = [...filteredItems];
+  let displayedItems = [...filteredItems];
 
-
-switch (sortValue) {
-  case "name-asc":
-    displayedItems.sort((a, b) => a.name.localeCompare(b.name));
-    break;
-  case "name-desc":
-    displayedItems.sort((a, b) => b.name.localeCompare(a.name));
-    break;
-  case "rarity-asc":
-    displayedItems.sort((a, b) => a.rarity - b.rarity);
-    break;
-  case "rarity-desc":
-    displayedItems.sort((a, b) => b.rarity - a.rarity);
-    break;
-}
+  switch (sortValue) {
+    case "name-asc":
+      displayedItems.sort((a, b) => a.name.localeCompare(b.name));
+      break;
+    case "name-desc":
+      displayedItems.sort((a, b) => b.name.localeCompare(a.name));
+      break;
+    case "rarity-asc":
+      displayedItems.sort((a, b) => a.rarity - b.rarity);
+      break;
+    case "rarity-desc":
+      displayedItems.sort((a, b) => b.rarity - a.rarity);
+      break;
+  }
   // Get the current slug from the URL
   const currentRoute = pathname?.replace(/^\/items\//, "") || "";
 
@@ -177,81 +177,88 @@ switch (sortValue) {
             />
           </div>
 
-<div className="flex flex-col gap-3">
-  {/* Sort Dropdown */}
-  <Popover>
-    <PopoverTrigger asChild>
-      <Button variant="outline" className="w-full justify-between">
-        Sort: {sortOptions.find((s) => s.value === sortValue)?.label || "Default"}
-        <ChevronsUpDown className="opacity-50" />
-      </Button>
-    </PopoverTrigger>
-    <PopoverContent className="w-[220px] p-0">
-      <Command>
-        <CommandInput placeholder="Search sort..." className="h-9" />
-        <CommandList>
-          <CommandEmpty>No sort option.</CommandEmpty>
-          <CommandGroup heading="Sort by">
-            {sortOptions.map((s) => (
-              <CommandItem
-                key={s.value}
-                value={s.value}
-                onSelect={(val) => setSortValue(val)}
-              >
-                {s.label}
-                <Check
-                  className={cn(
-                    "ml-auto",
-                    sortValue === s.value ? "opacity-100" : "opacity-0"
-                  )}
-                />
-              </CommandItem>
-            ))}
-          </CommandGroup>
-        </CommandList>
-      </Command>
-    </PopoverContent>
-  </Popover>
+          <div className="flex flex-col gap-3">
+            {/* Sort Dropdown */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="w-full justify-between">
+                  Sort:{" "}
+                  {sortOptions.find((s) => s.value === sortValue)?.label ||
+                    "Default"}
+                  <ChevronsUpDown className="opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[220px] p-0">
+                <Command>
+                  <CommandInput placeholder="Search sort..." className="h-9" />
+                  <CommandList>
+                    <CommandEmpty>No sort option.</CommandEmpty>
+                    <CommandGroup heading="Sort by">
+                      {sortOptions.map((s) => (
+                        <CommandItem
+                          key={s.value}
+                          value={s.value}
+                          onSelect={(val) => setSortValue(val)}
+                        >
+                          {s.label}
+                          <Check
+                            className={cn(
+                              "ml-auto",
+                              sortValue === s.value
+                                ? "opacity-100"
+                                : "opacity-0"
+                            )}
+                          />
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
 
-  {/* Category Dropdown */}
-  <Popover open={open} onOpenChange={setOpen}>
-    <PopoverTrigger asChild>
-      <Button variant="outline" className="w-full justify-between">
-        Category: {categories.find((c) => c.value === value)?.label || "All"}
-        <ChevronsUpDown className="opacity-50" />
-      </Button>
-    </PopoverTrigger>
-    <PopoverContent className="w-[220px] p-0">
-      <Command>
-        <CommandInput placeholder="Search category..." className="h-9" />
-        <CommandList>
-          <CommandEmpty>No category.</CommandEmpty>
-          <CommandGroup heading="Categories">
-            {categories.map((cat) => (
-              <CommandItem
-                key={cat.value}
-                value={cat.value}
-                onSelect={(val) => {
-                  setValue(val);
-                  setOpen(false);
-                }}
-              >
-                {cat.label}
-                <Check
-                  className={cn(
-                    "ml-auto",
-                    value === cat.value ? "opacity-100" : "opacity-0"
-                  )}
-                />
-              </CommandItem>
-            ))}
-          </CommandGroup>
-        </CommandList>
-      </Command>
-    </PopoverContent>
-  </Popover>
-</div>
-
+            {/* Category Dropdown */}
+            <Popover open={open} onOpenChange={setOpen}>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="w-full justify-between">
+                  Category:{" "}
+                  {categories.find((c) => c.value === value)?.label || "All"}
+                  <ChevronsUpDown className="opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[220px] p-0">
+                <Command>
+                  <CommandInput
+                    placeholder="Search category..."
+                    className="h-9"
+                  />
+                  <CommandList>
+                    <CommandEmpty>No category.</CommandEmpty>
+                    <CommandGroup heading="Categories">
+                      {categories.map((cat) => (
+                        <CommandItem
+                          key={cat.value}
+                          value={cat.value}
+                          onSelect={(val) => {
+                            setValue(val);
+                            setOpen(false);
+                          }}
+                        >
+                          {cat.label}
+                          <Check
+                            className={cn(
+                              "ml-auto",
+                              value === cat.value ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+          </div>
 
           {/* Items List */}
           <div>
@@ -311,10 +318,13 @@ switch (sortValue) {
                         >
                           <CardContent>
                             <div className="flex items-center space-x-3">
-                              <img
+                              <Image
                                 src={getImageUrl(item.image)}
                                 alt={item.name}
-                                className="w-10 h-10 object-contain rounded"
+                                width={38}
+                                height={32}
+                                className="object-contain rounded"
+                                 loading="lazy"
                               />
                               <div className="flex-1 min-w-0">
                                 <div className="font-medium flex items-center justify-between">

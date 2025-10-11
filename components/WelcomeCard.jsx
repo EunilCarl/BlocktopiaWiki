@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Highlighter } from "@/components/magicui/highlighter";
+import Image from "next/image";
 
 const features = [
   {
@@ -55,7 +56,10 @@ const WelcomeCard = () => (
       {/* Logo */}
       <div className="relative mb-4">
         <div className="absolute inset-0 bg-blue-400/5 rounded-2xl blur-md transform scale-200" />
-        <img
+        <Image
+          width={140}
+          height={140}
+          priority
           src="/logo-v1.webp"
           alt="Blocktopia Logo"
           className="relative h-25 w-35 mx-auto"
@@ -108,10 +112,11 @@ const WelcomeCard = () => (
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <img
+                <Image
+                  height={3.5}
+                  width={3.5}
                   src="https://cdn.worldvectorlogo.com/logos/discord-6.svg"
                   alt="Discord Logo"
-                  className="h-3.5 w-3.5"
                 />
                 <span>Discord</span>
               </a>
@@ -120,24 +125,27 @@ const WelcomeCard = () => (
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <hr className="my-6 mb-10 border-t border-muted/50" />
+      <hr className="my-6 mb-5 border-t border-muted/30" />
 
       {/* Features grid */}
       <div className="mb-10">
         <h3 className="text-lg font-semibold mb-6">
           Explore the vibrant world of Blocktopia
         </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-w-2xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-w-xl mx-auto">
           {features.map((item, index) => (
             <div
               key={index}
               className="bg-white/60 dark:bg-muted/60 backdrop-blur-sm rounded-xl p-3 shadow-md hover:shadow-lg hover:scale-105 transition-all duration-300 border border-muted"
             >
-              <div className="mb-2 flex justify-center">
-                <img
+              <div className=" flex justify-center">
+                <Image
                   src={item.icon}
                   alt={item.title}
-                  className="w-8 h-8 object-contain"
+                  width={30}
+                  height={0}
+                  loading="lazy"
+                  className="object-contain w-8 h-8"
                 />
               </div>
               <div className="font-semibold text-sm mb-1">{item.title}</div>
@@ -147,36 +155,35 @@ const WelcomeCard = () => (
         </div>
       </div>
 
-     {/* Modern New Features Card */}
-<Card className="relative bg-gradient-to-br dark:from-muted/50 dark:to-muted/40 backdrop-blur-md p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-shadow duration-300 max-w-lg mx-auto mb-6 border dark:border-muted/40">
-  {/* Header with icon */}
-  <div className="flex items-center justify-center gap-2 mb-4">
-    <Megaphone className="w-6 h-6 text-orange-500" />
-    <CardTitle className="text-md font-bold">Exclusive New Features</CardTitle>
-  </div>
+<hr className="my-6 mb-5 border-t border-muted/30" />
+      {/* Modern New Features Card */}
+      <Card className="relative bg-gradient-to-br dark:from-muted/50 dark:to-muted/40 backdrop-blur-md p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-shadow duration-300 max-w-sm mx-auto border dark:border-muted/40">
+        {/* Header with icon */}
+        <div className="flex items-center justify-center gap-2 mb-4">
+          <Megaphone className="w-6 h-6 text-orange-500" />
+          <CardTitle className="text-md font-bold">
+            Exclusive New Features
+          </CardTitle>
+        </div>
 
-
-  {/* Mass-guide Button */}
-  <div className="relative flex justify-center">
-    <Button
-     variant="outline"
-  asChild
- 
->
-
-      <Link href="/mass-guide" className="flex items-center justify-center relative">
-        Mass Guide
-        <Badge
-        variant="secondary"
-        className="absolute -top-2 -right-5 bg-amber-500 text-[11px] font-bold text-white dark:bg-amber-600  px-1.5 py-0.5 shadow-md animate-pulse"
-      >
-          Beta
-        </Badge>
-      </Link>
-    </Button>
-  </div>
-</Card>
-
+        {/* Mass-guide Button */}
+        <div className="relative flex justify-center">
+          <Button variant="outline" asChild>
+            <Link
+              href="/mass-guide"
+              className="flex items-center justify-center relative"
+            >
+              Mass Guide
+              <Badge
+                variant="secondary"
+                className="absolute -top-2 -right-5 bg-amber-500 text-[11px] font-bold text-white dark:bg-amber-600  px-1.5 py-0.5 shadow-md animate-pulse"
+              >
+                Beta
+              </Badge>
+            </Link>
+          </Button>
+        </div>
+      </Card>
     </CardContent>
   </Card>
 );
