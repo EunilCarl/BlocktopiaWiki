@@ -18,8 +18,10 @@ import { ChevronsUpDown, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/lib/supabaseClient";
 import categories from "@/data/categories";
-import { Checkbox } from "@/ui/checkbox"
+import { Checkbox } from "@/ui/checkbox";
 import { toast } from "sonner";
+import { upload } from "@imagekit/next";
+import Image from "next/image";
 
 const EditDialog = ({
   editingItem,
@@ -35,7 +37,6 @@ const EditDialog = ({
   const [submitting, setSubmitting] = useState(false);
   const createdObjectUrlRef = useRef(null);
 
-  
   useEffect(() => {
     if (editingItem?.type) {
       // Find the matching category and set its label as default
@@ -94,94 +95,96 @@ const EditDialog = ({
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  if (!editingItem) return;
-  setSubmitting(true);
+    e.preventDefault();
+    if (!editingItem) return;
+    setSubmitting(true);
 
-  try {
-    const formData = new FormData(e.target);
+    let newImageUrl = editingItem?.image || null;
 
-       let newImagePath = editingItem?.image || null;
-    if (file) {
-      let baseName = file.name.replace(/\s+/g, "_");
-      let extension = "";
-      const dotIndex = baseName.lastIndexOf(".");
-      if (dotIndex !== -1) {
-        extension = baseName.substring(dotIndex);
-        baseName = baseName.substring(0, dotIndex);
+    try {
+      const formData = new FormData(e.target);
+
+      let newImagePath = editingItem?.image || null;
+      if (file) {
+        // Fetch auth parameters from your API
+        const res = await fetch("/api/upload-auth");
+        if (!res.ok) throw new Error("Failed to get ImageKit auth params");
+        const { signature, expire, token, publicKey } = await res.json();
+
+        // Upload to ImageKit
+        const uploadRes = await upload({
+          file,
+          fileName: file.name,
+          token,
+          expire,
+          signature,
+          publicKey,
+          folder: "/items/suggestions",
+          onProgress: (e) =>
+            console.log(`Progress: ${Math.round((e.loaded / e.total) * 100)}%`),
+        });
+
+        newImageUrl = uploadRes.url; // full ImageKit CDN URL
       }
 
-      let finalName = baseName + extension;
-      let counter = 1;
-      let uploaded = false;
-      let data, error;
+      const propsInput = formData.get("properties");
+      const propertiesArr = propsInput
+        ? propsInput
+            .toString()
+            .split(",")
+            .map((p) => p.trim())
+            .filter(Boolean)
+        : null;
 
-      while (!uploaded) {
-        ({ data, error } = await supabase.storage
-          .from("items")
-          .upload(`suggestions/${finalName}`, file, { upsert: false }));
+      const payload = {
+        item_id: editingItem.id,
+        new_name: formData.get("name") || undefined,
+        new_rarity: formData.get("rarity")
+          ? Number(formData.get("rarity"))
+          : undefined,
+        new_type: typeValue || undefined,
+        new_description: formData.get("description") || undefined,
+        new_splicing: formData.get("splicing") || undefined,
+        new_growtime: formData.get("growTime") || undefined,
+        new_value: formData.get("value") || undefined,
+        new_properties:
+          propertiesArr && propertiesArr.length ? propertiesArr : undefined,
+        new_image: newImageUrl, // or newImagePath if you handle file upload
+        new_punch: formData.get("punch")
+          ? Number(formData.get("punch"))
+          : undefined,
+        new_punchpick: formData.get("punchpick")
+          ? Number(formData.get("punchpick"))
+          : undefined,
+        new_istradeable: formData.get("istradeable") === "on" ? true : false,
+      };
 
-        if (!error) {
-          uploaded = true;
-        } else if (error.message.includes("The resource already exists")) {
-          counter++;
-          finalName = `${baseName}(${counter})${extension}`;
-        } else {
-          throw error;
-        }
-      }
+      Object.keys(payload).forEach(
+        (k) => payload[k] === undefined && delete payload[k]
+      );
 
-      if (data?.path) newImagePath = data.path;
-    }
+      const { error: insertError } = await supabase
+        .from("suggestions")
+        .insert([payload]);
+      if (insertError) throw insertError;
 
+      toast("Suggestion submitted", {
+        description: "Your suggestion will be reviewed soon.",
+        action: { label: "Got it" },
+      });
 
-    const propsInput = formData.get("properties");
-    const propertiesArr = propsInput
-      ? propsInput.toString().split(",").map(p => p.trim()).filter(Boolean)
-      : null;
-
-    const payload = {
-      item_id: editingItem.id,
-      new_name: formData.get("name") || undefined,
-      new_rarity: formData.get("rarity") ? Number(formData.get("rarity")) : undefined,
-      new_type: typeValue || undefined,
-      new_description: formData.get("description") || undefined,
-      new_splicing: formData.get("splicing") || undefined,
-      new_growtime: formData.get("growTime") || undefined,
-      new_value: formData.get("value") || undefined,
-      new_properties: propertiesArr && propertiesArr.length ? propertiesArr : undefined,
-      new_image: newImagePath, // or newImagePath if you handle file upload
-      new_punch: formData.get("punch") ? Number(formData.get("punch")) : undefined,
-      new_punchpick: formData.get("punchpick") ? Number(formData.get("punchpick")) : undefined,
-      new_istradeable: formData.get("istradeable") === "on" ? true : false,
-    };
-
-    Object.keys(payload).forEach(k => payload[k] === undefined && delete payload[k]);
-
-    const { error: insertError } = await supabase
-      .from("suggestions")
-      .insert([payload]);
-    if (insertError) throw insertError;
-
-    toast("Suggestion submitted", { 
-      description: "Your suggestion will be reviewed soon.", 
-      action: { label: "Got it"},
-    });
-
-   setTimeout(() => {
-  setEditingItem(null);
-  setFile(null);
-  setPreviewUrl(null);
-}, 100); 
-
-  } catch (err) {
-    console.error("submit error", err);
+      setTimeout(() => {
+        setEditingItem(null);
+        setFile(null);
+        setPreviewUrl(null);
+      }, 100);
+    } catch (err) {
+      console.error("submit error", err);
       toast.error(`Failed to submit suggestion: ${err.message || err}`);
-  } finally {
-    setSubmitting(false);
-  }
-};
-
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <Dialog open={!!editingItem} onOpenChange={() => setEditingItem(null)}>
@@ -193,10 +196,7 @@ const EditDialog = ({
         </DialogHeader>
 
         <ScrollArea className="flex-1 px-4 pb-4 sm:px-6 sm:pb-6 h-[400px]">
-          <form
-            onSubmit={handleSubmit }
-            className="space-y-4 sm:space-y-6 pt-4"
-          >
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 pt-4">
             {/* Responsive Grid - Stack on mobile, 2 columns on larger screens */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
               <div className="flex flex-col space-y-1">
@@ -303,43 +303,42 @@ const EditDialog = ({
                 />
               </div>
 
-               <div className="flex flex-col space-y-1">
-    <Label htmlFor="punch" className="text-sm font-medium">
-      Punches Needed
-    </Label>
-    <Input
-      id="punch"
-      name="punch"
-      type="number"
-      defaultValue={editingItem?.punch ?? ""}
-      className="h-10"
-    />
-  </div>
+              <div className="flex flex-col space-y-1">
+                <Label htmlFor="punch" className="text-sm font-medium">
+                  Punches Needed
+                </Label>
+                <Input
+                  id="punch"
+                  name="punch"
+                  type="number"
+                  defaultValue={editingItem?.punch ?? ""}
+                  className="h-10"
+                />
+              </div>
 
-  <div className="flex flex-col space-y-1">
-    <Label htmlFor="punchpick" className="text-sm font-medium">
-      Punches with Pickaxe
-    </Label>
-    <Input
-      id="punchpick"
-      name="punchpick"
-      type="number"
-      defaultValue={editingItem?.punchpick ?? ""}
-      className="h-10"
-    />
-  </div>
+              <div className="flex flex-col space-y-1">
+                <Label htmlFor="punchpick" className="text-sm font-medium">
+                  Punches with Pickaxe
+                </Label>
+                <Input
+                  id="punchpick"
+                  name="punchpick"
+                  type="number"
+                  defaultValue={editingItem?.punchpick ?? ""}
+                  className="h-10"
+                />
+              </div>
 
-<div className="flex flex-col space-y-1">
-  <Label htmlFor="istradeable" className="text-sm font-medium">
-    is Tradeable
-  </Label>
-  <Checkbox
-    id="istradeable"
-    defaultChecked={editingItem?.istradeable ?? false}
-    className="h-5 w-5"
-  />
-</div>
-
+              <div className="flex flex-col space-y-1">
+                <Label htmlFor="istradeable" className="text-sm font-medium">
+                  is Tradeable
+                </Label>
+                <Checkbox
+                  id="istradeable"
+                  defaultChecked={editingItem?.istradeable ?? false}
+                  className="h-5 w-5"
+                />
+              </div>
 
               <div className="flex flex-col space-y-1">
                 <Label htmlFor="growTime" className="text-sm font-medium">
@@ -402,9 +401,11 @@ const EditDialog = ({
 
                     const maxSizeMB = 5;
                     if (f.size / 1024 / 1024 > maxSizeMB) {
-                     setTimeout(() => {
-  toast.error(`File is too large. Maximum allowed is ${maxSizeMB} MB.`);
-}, 0);
+                      setTimeout(() => {
+                        toast.error(
+                          `File is too large. Maximum allowed is ${maxSizeMB} MB.`
+                        );
+                      }, 0);
                       e.target.value = null; // reset input
                       setFile(null);
                       setPreviewUrl(
@@ -429,11 +430,15 @@ const EditDialog = ({
               </div>
               <div className="w-full max-w-xs h-40 bg-muted/10 rounded-lg flex items-center justify-center overflow-hidden border mx-auto sm:mx-0">
                 {previewUrl ? (
-                  <img
-                    src={previewUrl}
-                    alt="preview"
-                    className="w-full h-full object-contain"
-                  />
+                  <div className="relative w-full h-full">
+      <Image
+        src={previewUrl}
+        alt="preview"
+        fill
+        className="object-contain"
+        unoptimized
+      />
+    </div>
                 ) : (
                   <div className="text-xs text-muted-foreground px-2 text-center">
                     No image selected

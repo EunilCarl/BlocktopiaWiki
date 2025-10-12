@@ -12,6 +12,11 @@ const nextConfig = {
         hostname: "cdn.worldvectorlogo.com", // for Discord logo
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "ik.imagekit.io", // allow ImageKit
+        pathname: "/**",
+      },
     ],
   },
 };

@@ -1,13 +1,13 @@
 // app/massguide/page.jsx
 "use client";
-
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Loader2, Search} from "lucide-react";
+import { Loader2, Search } from "lucide-react";
 
 export default function MassGuidePage() {
   const [items, setItems] = useState([]);
@@ -31,9 +31,7 @@ export default function MassGuidePage() {
   }, []);
 
   const getImageUrl = (path) =>
-    path
-      ? supabase.storage.from("items").getPublicUrl(path).data.publicUrl
-      : "";
+    path ? `https://ik.imagekit.io/6j61dmdpg/items/${path}?tr=f-auto,q-70` : "";
 
   const splicableItems = items.filter(
     (item) =>
@@ -54,7 +52,9 @@ export default function MassGuidePage() {
   if (error) {
     return (
       <div className="p-6 text-center">
-        <p className="text-red-500 font-medium">❌ Failed to load items: {error}</p>
+        <p className="text-red-500 font-medium">
+          ❌ Failed to load items: {error}
+        </p>
       </div>
     );
   }
@@ -66,20 +66,19 @@ export default function MassGuidePage() {
       </h1>
 
       {/* Search Bar */}
-{/* Search Bar */}
-<div className="mb-8 flex justify-center">
-  <div className="relative max-w-md w-full">
-    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-    <Input
-      type="text"
-      placeholder="Search by name or recipe..."
-      value={search}
-      onChange={(e) => setSearch(e.target.value)}
-      className="pl-10 w-full border-gray-300 dark:border-gray-700"
-    />
-  </div>
-</div>
-
+      {/* Search Bar */}
+      <div className="mb-8 flex justify-center">
+        <div className="relative max-w-md w-full">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+          <Input
+            type="text"
+            placeholder="Search by name or recipe..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-10 w-full border-gray-300 dark:border-gray-700"
+          />
+        </div>
+      </div>
 
       {splicableItems.length === 0 ? (
         <p className="text-center text-muted-foreground">
@@ -91,10 +90,14 @@ export default function MassGuidePage() {
             <Link key={item.id} href={`/mass-guide/${item.id}`}>
               <Card className="group cursor-pointer transition hover:scale-[1.02] hover:shadow-lg dark:hover:shadow-blue-900/40">
                 <CardHeader className="flex flex-row items-center gap-3">
-                  <img
+                  <Image
                     src={getImageUrl(item.image)}
                     alt={item.name}
-                    className="w-10 h-10 rounded-md border dark:border-gray-700 object-contain bg-white"
+                    width={40}
+                    height={40}
+                    quality={70}
+                    className="rounded-md border dark:border-gray-700 object-contain bg-white"
+                    loading="lazy"
                   />
                   <CardTitle className="text-lg font-semibold group-hover:text-blue-500 transition-colors">
                     {item.name}

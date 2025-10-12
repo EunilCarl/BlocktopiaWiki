@@ -1,5 +1,6 @@
 // app/mass-guide/[id]/page.jsx
 "use client";
+import Image from "next/image";
 import { supabase } from "@/lib/supabaseClient";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -8,17 +9,25 @@ import { useState, useEffect, useRef, use } from "react";
 import { ZoomIn, ZoomOut, Maximize2, Minimize2, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Panzoom from "@panzoom/panzoom";
-import { DotPattern } from "@/components/magicui/dot-pattern"
-import { cn } from "@/lib/utils"
+import { DotPattern } from "@/components/magicui/dot-pattern";
+import { cn } from "@/lib/utils";
 /* ------------------ Tree Builder (unchanged) ------------------ */
-function buildTree(item, allItems, visited = new Set(), uniqueIdCounter = { value: 1000000 }, path = "") {
+function buildTree(
+  item,
+  allItems,
+  visited = new Set(),
+  uniqueIdCounter = { value: 1000000 },
+  path = ""
+) {
   if (!item || !item.splicing || item.splicing === "N/A") {
     return {
-      id: item?.id ? `${item.id}-${path}` : `generated-${uniqueIdCounter.value++}`,
+      id: item?.id
+        ? `${item.id}-${path}`
+        : `generated-${uniqueIdCounter.value++}`,
       originalId: item?.id,
       name: item?.name || "",
       image: item?.image || "",
-      ingredients: []
+      ingredients: [],
     };
   }
 
@@ -29,7 +38,7 @@ function buildTree(item, allItems, visited = new Set(), uniqueIdCounter = { valu
       originalId: item.id,
       name: item.name,
       image: item?.image || "",
-      ingredients: []
+      ingredients: [],
     };
   }
   visited.add(nodeId);
@@ -46,7 +55,7 @@ function buildTree(item, allItems, visited = new Set(), uniqueIdCounter = { valu
             originalId: null,
             name: ing,
             image: "",
-            ingredients: []
+            ingredients: [],
           };
     })
     .filter(Boolean);
@@ -56,7 +65,7 @@ function buildTree(item, allItems, visited = new Set(), uniqueIdCounter = { valu
     originalId: item.id,
     name: item.name,
     image: item.image,
-    ingredients: children
+    ingredients: children,
   };
 }
 
@@ -72,7 +81,9 @@ function TreeNode({ node, getImageUrl, completedItems, onToggleComplete }) {
       ? isCompleted
         ? 100
         : 0
-      : (node.ingredients.filter((child) => completedItems.has(child.id)).length / node.ingredients.length) *
+      : (node.ingredients.filter((child) => completedItems.has(child.id))
+          .length /
+          node.ingredients.length) *
         100;
 
   return (
@@ -81,8 +92,14 @@ function TreeNode({ node, getImageUrl, completedItems, onToggleComplete }) {
       <Card
         className={`
           relative z-10 transition-all duration-300 hover:shadow-lg cursor-pointer
-          ${isCompleted ? "bg-green-50 border-green-300 shadow-green-100" : "bg-white hover:bg-gray-50"}
-          ${canComplete && !isCompleted ? "border-blue-400 shadow-blue-100" : ""}
+          ${
+            isCompleted
+              ? "bg-green-50 border-green-300 shadow-green-100"
+              : "bg-white hover:bg-gray-50"
+          }
+          ${
+            canComplete && !isCompleted ? "border-blue-400 shadow-blue-100" : ""
+          }
           min-w-32
         `}
       >
@@ -90,10 +107,12 @@ function TreeNode({ node, getImageUrl, completedItems, onToggleComplete }) {
           {/* Image */}
           {node.image && (
             <div className="relative">
-              <img
+              <Image
                 src={getImageUrl(node.image)}
                 alt={node.name}
-                className={`w-16 h-16 rounded-lg object-cover transition-all duration-300 ${
+                width={64}
+                height={64}
+                className={`rounded-lg object-cover transition-all duration-300 ${
                   isCompleted ? "opacity-90" : "opacity-100"
                 }`}
               />
@@ -106,7 +125,11 @@ function TreeNode({ node, getImageUrl, completedItems, onToggleComplete }) {
           )}
 
           {/* Name */}
-          <div className={`text-sm font-semibold text-center leading-tight ${isCompleted ? "text-green-800" : "text-gray-900"}`}>
+          <div
+            className={`text-sm font-semibold text-center leading-tight ${
+              isCompleted ? "text-green-800" : "text-gray-900"
+            }`}
+          >
             {node.name}
           </div>
 
@@ -114,7 +137,9 @@ function TreeNode({ node, getImageUrl, completedItems, onToggleComplete }) {
           {node.ingredients.length > 0 && (
             <div className="w-full space-y-1">
               <Progress value={completionPercentage} className="h-2" />
-              <div className="text-xs text-gray-500 text-center">{Math.round(completionPercentage)}%</div>
+              <div className="text-xs text-gray-500 text-center">
+                {Math.round(completionPercentage)}%
+              </div>
             </div>
           )}
 
@@ -132,12 +157,24 @@ function TreeNode({ node, getImageUrl, completedItems, onToggleComplete }) {
               checked={isCompleted}
               disabled={!canComplete}
               className={`
-                ${canComplete ? "cursor-pointer" : "cursor-not-allowed opacity-50"}
-                ${isCompleted ? "data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600" : ""}
+                ${
+                  canComplete
+                    ? "cursor-pointer"
+                    : "cursor-not-allowed opacity-50"
+                }
+                ${
+                  isCompleted
+                    ? "data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
+                    : ""
+                }
               `}
             />
             <span className="text-xs text-gray-600">
-              {isCompleted ? "Completed" : canComplete ? "Mark Complete" : "Prerequisites Required"}
+              {isCompleted
+                ? "Completed"
+                : canComplete
+                ? "Mark Complete"
+                : "Prerequisites Required"}
             </span>
           </div>
         </CardContent>
@@ -146,15 +183,37 @@ function TreeNode({ node, getImageUrl, completedItems, onToggleComplete }) {
       {/* Connectors */}
       {node.ingredients.length > 0 && (
         <div className="relative mt-6 flex justify-center w-full">
-          <svg className="absolute -top-6 left-0 w-full pointer-events-none" style={{ height: "100px" }} xmlns="http://www.w3.org/2000/svg">
+          <svg
+            className="absolute -top-6 left-0 w-full pointer-events-none"
+            style={{ height: "100px" }}
+            xmlns="http://www.w3.org/2000/svg"
+          >
             <defs>
-              <marker id={`arrow-${node.id}`} markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
-                <path d="M0,0 L0,6 L6,3 z" fill={isCompleted ? "#10b981" : "#6b7280"} />
+              <marker
+                id={`arrow-${node.id}`}
+                markerWidth="10"
+                markerHeight="10"
+                refX="9"
+                refY="3"
+                orient="auto"
+                markerUnits="strokeWidth"
+              >
+                <path
+                  d="M0,0 L0,6 L6,3 z"
+                  fill={isCompleted ? "#10b981" : "#6b7280"}
+                />
               </marker>
             </defs>
 
             {/* Vertical line */}
-            <line x1="50%" y1="0" x2="50%" y2="30" stroke={isCompleted ? "#10b981" : "#6b7280"} strokeWidth="3" />
+            <line
+              x1="50%"
+              y1="0"
+              x2="50%"
+              y2="30"
+              stroke={isCompleted ? "#10b981" : "#6b7280"}
+              strokeWidth="3"
+            />
 
             {/* Horizontal line */}
             {node.ingredients.length > 1 && (
@@ -170,7 +229,8 @@ function TreeNode({ node, getImageUrl, completedItems, onToggleComplete }) {
 
             {/* Lines to children */}
             {node.ingredients.map((child, idx) => {
-              const offsetFromCenter = (idx - (node.ingredients.length - 1) / 2) * 50;
+              const offsetFromCenter =
+                (idx - (node.ingredients.length - 1) / 2) * 50;
               const childX = 50 + offsetFromCenter;
               const childCompleted = completedItems.has(child.id);
 
@@ -193,7 +253,13 @@ function TreeNode({ node, getImageUrl, completedItems, onToggleComplete }) {
           {/* Children */}
           <div className="flex justify-center gap-12 mt-16">
             {node.ingredients.map((child, idx) => (
-              <TreeNode key={idx} node={child} getImageUrl={getImageUrl} completedItems={completedItems} onToggleComplete={onToggleComplete} />
+              <TreeNode
+                key={idx}
+                node={child}
+                getImageUrl={getImageUrl}
+                completedItems={completedItems}
+                onToggleComplete={onToggleComplete}
+              />
             ))}
           </div>
         </div>
@@ -218,7 +284,9 @@ export default function MassGuideDetail({ params }) {
   /* ---------- Fetch Data ---------- */
   useEffect(() => {
     async function fetchData() {
-      const { data: itemsData, error } = await supabase.from("items").select("*");
+      const { data: itemsData, error } = await supabase
+        .from("items")
+        .select("*");
       if (error) {
         console.error(error);
         return;
@@ -236,45 +304,44 @@ export default function MassGuideDetail({ params }) {
     fetchData();
   }, [id]);
 
-useEffect(() => {
-  const handleKeyDown = (e) => {
-    if (e.key === "Escape") {
-      setIsFullscreen(false);
-    }
-  };
-  window.addEventListener("keydown", handleKeyDown);
-  return () => window.removeEventListener("keydown", handleKeyDown);
-}, []);
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setIsFullscreen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   /* ---------- Initialize Panzoom ---------- */
   /* ---------- Initialize Panzoom ---------- */
-useEffect(() => {
-  if (!contentRef.current) return;
+  useEffect(() => {
+    if (!contentRef.current) return;
 
-  const panzoom = Panzoom(contentRef.current, {
-    maxScale: 5,
-    minScale: 0.001, // DECREASED THIS VALUE (e.g., from 0.3 to 0.1)
-    contain: false,
-    startScale: 0.8
-  });
+    const panzoom = Panzoom(contentRef.current, {
+      maxScale: 5,
+      minScale: 0.001, // DECREASED THIS VALUE (e.g., from 0.3 to 0.1)
+      contain: false,
+      startScale: 0.8,
+    });
 
-  // enable wheel zoom on container
-  containerRef.current?.addEventListener("wheel", panzoom.zoomWithWheel);
+    // enable wheel zoom on container
+    containerRef.current?.addEventListener("wheel", panzoom.zoomWithWheel);
 
-  panzoomRef.current = panzoom;
+    panzoomRef.current = panzoom;
 
-  return () => {
-    containerRef.current?.removeEventListener("wheel", panzoom.zoomWithWheel);
-    panzoom.destroy();
-  };
-}, [tree]);
+    return () => {
+      containerRef.current?.removeEventListener("wheel", panzoom.zoomWithWheel);
+      panzoom.destroy();
+    };
+  }, [tree]);
 
   /* ---------- Controls ---------- */
   const handleZoomIn = () => panzoomRef.current?.zoomIn();
   const handleZoomOut = () => panzoomRef.current?.zoomOut();
   const handleResetZoom = () => panzoomRef.current?.reset();
 
-  
   /* ---------- Completion ---------- */
   const handleToggleComplete = (itemId) => {
     setCompletedItems((prev) => {
@@ -287,12 +354,20 @@ useEffect(() => {
 
   const getOverallProgress = () => {
     if (!tree) return 0;
-    const getAllNodes = (node) => [node, ...node.ingredients.flatMap(getAllNodes)];
+    const getAllNodes = (node) => [
+      node,
+      ...node.ingredients.flatMap(getAllNodes),
+    ];
     const allNodes = getAllNodes(tree);
-    return (allNodes.filter((n) => completedItems.has(n.id)).length / allNodes.length) * 100;
+    return (
+      (allNodes.filter((n) => completedItems.has(n.id)).length /
+        allNodes.length) *
+      100
+    );
   };
 
-  const getImageUrl = (path) => (path ? supabase.storage.from("items").getPublicUrl(path).data.publicUrl : "");
+  const getImageUrl = (path) =>
+    path ? `https://ik.imagekit.io/6j61dmdpg/items/${path}` : "";
 
   if (loading) return <div className="p-6 flex justify-center">Loading...</div>;
   if (!item) return <p className="text-center mt-10">Item not found</p>;
@@ -314,56 +389,63 @@ useEffect(() => {
       </div>
 
       {/* Controls */}
-  <div
-  ref={containerRef}
-  className={cn(
-    "relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-xl shadow-md transition-all duration-300",
-    isFullscreen
-      ? "fixed inset-0 z-30 h-screen w-screen rounded-none"
-      : "lg:mx-24 h-[800px] flex"
-  )}
->
-  {/* Dot Pattern background */}
-  <DotPattern
-    className={cn(
-      "absolute inset-0 opacity-40 pointer-events-none [mask-image:radial-gradient(800px_circle_at_center,white,transparent)]"
-    )}
-  />
-
-  {/* Controls — now functional inside container */}
-  <div className="absolute top-4 right-6 z-20 flex gap-2 pointer-events-auto">
-    <Button variant="outline" size="sm" onClick={handleZoomOut}>
-      <ZoomOut className="w-4 h-4" />
-    </Button>
-    <Button variant="outline" size="sm" onClick={handleResetZoom}>
-      <RotateCcw className="w-4 h-4" />
-    </Button>
-    <Button variant="outline" size="sm" onClick={handleZoomIn}>
-      <ZoomIn className="w-4 h-4" />
-    </Button>
-    <Button variant="outline" size="sm" onClick={() => setIsFullscreen((f) => !f)}>
-      {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
-    </Button>
-  </div>
-
-  {/* Zoomable Content */}
-  <div
-    ref={contentRef}
-    className="relative z-10 min-w-max px-20 py-12 select-none"
-  >
-    {tree && (
-      <div className="flex justify-center">
-        <TreeNode
-          node={tree}
-          getImageUrl={getImageUrl}
-          completedItems={completedItems}
-          onToggleComplete={handleToggleComplete}
+      <div
+        ref={containerRef}
+        className={cn(
+          "relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-xl shadow-md transition-all duration-300",
+          isFullscreen
+            ? "fixed inset-0 z-30 h-screen w-screen rounded-none"
+            : "lg:mx-24 h-[800px] flex"
+        )}
+      >
+        {/* Dot Pattern background */}
+        <DotPattern
+          className={cn(
+            "absolute inset-0 opacity-40 pointer-events-none [mask-image:radial-gradient(800px_circle_at_center,white,transparent)]"
+          )}
         />
-      </div>
-    )}
-  </div>
-</div>
 
-</div>
+        {/* Controls — now functional inside container */}
+        <div className="absolute top-4 right-6 z-20 flex gap-2 pointer-events-auto">
+          <Button variant="outline" size="sm" onClick={handleZoomOut}>
+            <ZoomOut className="w-4 h-4" />
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleResetZoom}>
+            <RotateCcw className="w-4 h-4" />
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleZoomIn}>
+            <ZoomIn className="w-4 h-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsFullscreen((f) => !f)}
+          >
+            {isFullscreen ? (
+              <Minimize2 className="w-4 h-4" />
+            ) : (
+              <Maximize2 className="w-4 h-4" />
+            )}
+          </Button>
+        </div>
+
+        {/* Zoomable Content */}
+        <div
+          ref={contentRef}
+          className="relative z-10 min-w-max px-20 py-12 select-none"
+        >
+          {tree && (
+            <div className="flex justify-center">
+              <TreeNode
+                node={tree}
+                getImageUrl={getImageUrl}
+                completedItems={completedItems}
+                onToggleComplete={handleToggleComplete}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }

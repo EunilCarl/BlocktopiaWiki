@@ -321,10 +321,11 @@ const Sidebar = ({
                               <Image
                                 src={getImageUrl(item.image)}
                                 alt={item.name}
-                                width={38}
-                                height={32}
+                                width={40}
+                                height={35}
                                 className="object-contain rounded"
                                  loading="lazy"
+                                  unoptimized={item.image.endsWith(".gif")}
                               />
                               <div className="flex-1 min-w-0">
                                 <div className="font-medium flex items-center justify-between">

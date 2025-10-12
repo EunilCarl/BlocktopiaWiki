@@ -14,32 +14,32 @@ import Image from "next/image";
 
 const features = [
   {
-    icon: "https://lokegmegfgkpztijdamy.supabase.co/storage/v1/object/public/items/seed/seed.png",
+    icon: "https://ik.imagekit.io/6j61dmdpg/items/seed/seed.png?updatedAt=1760264042979",
     title: "Seeds & Farming",
     desc: "Rare splices and cultivation",
   },
   {
-    icon: "https://lokegmegfgkpztijdamy.supabase.co/storage/v1/object/public/items/block/bricks.png",
+    icon: "https://ik.imagekit.io/6j61dmdpg/items/block/bricks.png?updatedAt=1760264045908",
     title: "Blocks & Building",
     desc: "Decoration and construction",
   },
   {
-    icon: "https://lokegmegfgkpztijdamy.supabase.co/storage/v1/object/public/items/clothing/wrench.png",
+    icon: "https://ik.imagekit.io/6j61dmdpg/items/clothing/wrench.png?updatedAt=1760264062470",
     title: "Tools & Crafting",
     desc: "Efficient mining equipment",
   },
   {
-    icon: "https://lokegmegfgkpztijdamy.supabase.co/storage/v1/object/public/items/lock/worldlock.png",
+    icon: "https://ik.imagekit.io/6j61dmdpg/items/lock/worldlock.png?updatedAt=1760264042773",
     title: "Locks & Trading",
     desc: "Currency and world ownership",
   },
   {
-    icon: "https://lokegmegfgkpztijdamy.supabase.co/storage/v1/object/public/items/clothing/autumnwings.png",
+    icon: "https://ik.imagekit.io/6j61dmdpg/items/clothing/autumnwings.png?updatedAt=1760264042146",
     title: "Event Items",
     desc: "Rare collectibles and boosts",
   },
   {
-    icon: "https://lokegmegfgkpztijdamy.supabase.co/storage/v1/object/public/items/block/checkpoints.png",
+    icon: "https://ik.imagekit.io/6j61dmdpg/items/block/checkpoints.png?updatedAt=1760264044740",
     title: "Game Mechanics",
     desc: "Tips and strategies",
   },
@@ -56,14 +56,15 @@ const WelcomeCard = () => (
       {/* Logo */}
       <div className="relative mb-4">
         <div className="absolute inset-0 bg-blue-400/5 rounded-2xl blur-md transform scale-200" />
-        <Image
-          width={384}
-          height={256}
-          priority
-          src="/logo-v1.webp"
-          alt="Blocktopia Logo"
-          className="relative h-25 w-35 mx-auto"
-        />
+<Image
+  src="/logo-v1.webp"
+  alt="Blocktopia Logo"
+  width={180}
+  height={180} // 1.5 ratio
+  priority
+  className="relative mx-auto object-contain"
+/>
+
       </div>
 
       <CardTitle className="text-3xl font-bold mb-2">
@@ -142,10 +143,11 @@ const WelcomeCard = () => (
                 <Image
                   src={item.icon}
                   alt={item.title}
-                  width={30}
-                  height={0}
-                  loading="lazy"
-                  className="object-contain w-8 h-8"
+                  width={32} // these help with CLS
+                  height={32} // but they won’t override h-8 visually
+                  className="object-contain h-8 w-8"
+                  priority={index < 3} // optional: speed up top icons
+                  loading={index < 3 ? "eager" : "lazy"}
                 />
               </div>
               <div className="font-semibold text-sm mb-1">{item.title}</div>
@@ -155,7 +157,7 @@ const WelcomeCard = () => (
         </div>
       </div>
 
-<hr className="my-6 mb-5 border-t border-muted/30" />
+      <hr className="my-6 mb-5 border-t border-muted/30" />
       {/* Modern New Features Card */}
       <Card className="relative bg-gradient-to-br dark:from-muted/50 dark:to-muted/40 backdrop-blur-md p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-shadow duration-300 max-w-sm mx-auto border dark:border-muted/40">
         {/* Header with icon */}
