@@ -114,8 +114,8 @@ const WelcomeCard = () => (
                 rel="noopener noreferrer"
               >
                 <Image
-                  height={3.5}
-                  width={3.5}
+                  height={15}
+                  width={15}
                   src="https://cdn.worldvectorlogo.com/logos/discord-6.svg"
                   alt="Discord Logo"
                 />
