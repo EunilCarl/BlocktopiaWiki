@@ -325,7 +325,6 @@ const Sidebar = ({
                                 height={35}
                                 className="object-contain rounded"
                                  loading="lazy"
-                                  unoptimized={item.image.endsWith(".gif")}
                               />
                               <div className="flex-1 min-w-0">
                                 <div className="font-medium flex items-center justify-between">

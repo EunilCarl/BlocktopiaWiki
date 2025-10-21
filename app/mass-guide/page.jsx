@@ -30,8 +30,8 @@ export default function MassGuidePage() {
     fetchItems();
   }, []);
 
-  const getImageUrl = (path) =>
-    path ? `https://ik.imagekit.io/6j61dmdpg/items/${path}?tr=f-auto,q-70` : "";
+ const getImageUrl = (path) => (path ? `/items/${path}` : "");
+
 
   const splicableItems = items.filter(
     (item) =>

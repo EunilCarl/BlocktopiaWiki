@@ -39,7 +39,7 @@ const features = [
     desc: "Rare collectibles and boosts",
   },
   {
-    icon: "https://ik.imagekit.io/6j61dmdpg/items/block/checkpoints.png?updatedAt=1760264044740",
+    icon: "https://ik.imagekit.io/6j61dmdpg/items/block/checkpoint.png?updatedAt=1760264044740",
     title: "Game Mechanics",
     desc: "Tips and strategies",
   },

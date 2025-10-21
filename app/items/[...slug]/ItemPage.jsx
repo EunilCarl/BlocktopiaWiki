@@ -139,9 +139,9 @@ export default function ItemPage({ item }) {
     return matchesSearch && matchesFilter;
   });
 
-  // Get image URL from Supabase
-const getImageUrl = (path) =>
-  path ? `https://ik.imagekit.io/6j61dmdpg/items/${path}` : "";
+
+const getImageUrl = (path) => (path ? `/items/${path}` : "");
+
   // Get OG image URL with proper size for social previews
   const getOgImage = (path) => {
     if (!path) return "/logo-v1.webp";

@@ -366,8 +366,8 @@ export default function MassGuideDetail({ params }) {
     );
   };
 
-  const getImageUrl = (path) =>
-    path ? `https://ik.imagekit.io/6j61dmdpg/items/${path}` : "";
+const getImageUrl = (path) => (path ? `/items/${path}` : "");
+
 
   if (loading) return <div className="p-6 flex justify-center">Loading...</div>;
   if (!item) return <p className="text-center mt-10">Item not found</p>;

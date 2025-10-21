@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
+    loader: "custom",
+    loaderFile: "./imagekitLoader.js",
+
     remotePatterns: [
       {
         protocol: "https",
