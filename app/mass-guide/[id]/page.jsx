@@ -6,12 +6,24 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { useState, useEffect, useRef, use } from "react";
-import { ZoomIn, ZoomOut, Maximize2, Minimize2, RotateCcw } from "lucide-react";
+import {
+  ZoomIn,
+  ZoomOut,
+  Maximize2,
+  Minimize2,
+  RotateCcw,
+  ArrowLeft,
+  Search, // ✅ ADDED: Search Icon
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input"; // ✅ ADDED: Input component
 import Panzoom from "@panzoom/panzoom";
 import { DotPattern } from "@/components/magicui/dot-pattern";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
+
 /* ------------------ Tree Builder (unchanged) ------------------ */
+// ... (Your buildTree function remains unchanged)
 function buildTree(
   item,
   allItems,
@@ -69,8 +81,15 @@ function buildTree(
   };
 }
 
-/* ------------------ Tree Node (unchanged) ------------------ */
-function TreeNode({ node, getImageUrl, completedItems, onToggleComplete }) {
+/* ------------------ Tree Node (Updated) ------------------ */
+// ... (Paste the updated TreeNode function from step 1 here)
+function TreeNode({
+  node,
+  getImageUrl,
+  completedItems,
+  onToggleComplete,
+  searchTerm, // ✅ ADDED: Accept search term
+}) {
   const isCompleted = completedItems.has(node.id);
   const canComplete =
     node.ingredients.length === 0 ||
@@ -86,12 +105,26 @@ function TreeNode({ node, getImageUrl, completedItems, onToggleComplete }) {
           node.ingredients.length) *
         100;
 
+  // ✅ ADDED: Check if this node should be highlighted
+  const isHighlighted =
+    searchTerm && node.name.toLowerCase().includes(searchTerm.toLowerCase());
+
   return (
     <div className="flex flex-col items-center relative">
       {/* Node Card */}
       <Card
+        onClick={() => {
+          if (canComplete) {
+            onToggleComplete(node.id);
+          }
+        }}
         className={`
-          relative z-10 transition-all duration-300 hover:shadow-lg cursor-pointer
+          relative z-10 transition-all duration-300 hover:shadow-lg
+          ${
+            canComplete
+              ? "cursor-pointer" // ✅ ADDED: Cursor pointer if clickable
+              : "cursor-default"
+          }
           ${
             isCompleted
               ? "bg-green-50 border-green-300 shadow-green-100"
@@ -101,6 +134,12 @@ function TreeNode({ node, getImageUrl, completedItems, onToggleComplete }) {
             canComplete && !isCompleted ? "border-blue-400 shadow-blue-100" : ""
           }
           min-w-32
+          ${/* ✅ ADDED: Highlight style */ ""}
+          ${
+            isHighlighted
+              ? "ring-10 ring-yellow-400 shadow-lg shadow-yellow-400/50"
+              : ""
+          }
         `}
       >
         <CardContent className="p-4 flex flex-col items-center space-y-2">
@@ -180,7 +219,7 @@ function TreeNode({ node, getImageUrl, completedItems, onToggleComplete }) {
         </CardContent>
       </Card>
 
-      {/* Connectors */}
+      {/* Connectors (unchanged) */}
       {node.ingredients.length > 0 && (
         <div className="relative mt-6 flex justify-center w-full">
           <svg
@@ -259,6 +298,7 @@ function TreeNode({ node, getImageUrl, completedItems, onToggleComplete }) {
                 getImageUrl={getImageUrl}
                 completedItems={completedItems}
                 onToggleComplete={onToggleComplete}
+                searchTerm={searchTerm} // ✅ ADDED: Pass search term recursively
               />
             ))}
           </div>
@@ -268,18 +308,34 @@ function TreeNode({ node, getImageUrl, completedItems, onToggleComplete }) {
   );
 }
 
-/* ------------------ Main Page with Panzoom ------------------ */
+/* ------------------ Main Page (Updated) ------------------ */
 export default function MassGuideDetail({ params }) {
-  const { id } = use(params); // ✅ unwrap params
+  const { id } = use(params);
+  const router = useRouter();
+  const storageKey = `mass-guide-progress-${id}`;
+
   const [items, setItems] = useState([]);
   const [item, setItem] = useState(null);
   const [tree, setTree] = useState(null);
-  const [completedItems, setCompletedItems] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState(""); // ✅ ADDED: Search state
   const containerRef = useRef(null);
   const contentRef = useRef(null);
   const panzoomRef = useRef(null);
+
+  const [completedItems, setCompletedItems] = useState(() => {
+    try {
+      const storedData = localStorage.getItem(storageKey);
+      if (storedData) {
+        const parsedData = JSON.parse(storedData);
+        return new Set(parsedData);
+      }
+    } catch (e) {
+      console.error("Failed to load progress from localStorage", e);
+    }
+    return new Set();
+  });
 
   /* ---------- Fetch Data ---------- */
   useEffect(() => {
@@ -315,20 +371,17 @@ export default function MassGuideDetail({ params }) {
   }, []);
 
   /* ---------- Initialize Panzoom ---------- */
-  /* ---------- Initialize Panzoom ---------- */
   useEffect(() => {
     if (!contentRef.current) return;
 
     const panzoom = Panzoom(contentRef.current, {
       maxScale: 5,
-      minScale: 0.001, // DECREASED THIS VALUE (e.g., from 0.3 to 0.1)
+      minScale: 0.001,
       contain: false,
       startScale: 0.8,
     });
 
-    // enable wheel zoom on container
     containerRef.current?.addEventListener("wheel", panzoom.zoomWithWheel);
-
     panzoomRef.current = panzoom;
 
     return () => {
@@ -336,6 +389,16 @@ export default function MassGuideDetail({ params }) {
       panzoom.destroy();
     };
   }, [tree]);
+
+  /* ---------- Save Progress ---------- */
+  useEffect(() => {
+    try {
+      const dataToStore = JSON.stringify(Array.from(completedItems));
+      localStorage.setItem(storageKey, dataToStore);
+    } catch (e) {
+      console.error("Failed to save progress to localStorage", e);
+    }
+  }, [completedItems, storageKey]);
 
   /* ---------- Controls ---------- */
   const handleZoomIn = () => panzoomRef.current?.zoomIn();
@@ -352,6 +415,16 @@ export default function MassGuideDetail({ params }) {
     });
   };
 
+  const handleResetProgress = () => {
+    if (
+      window.confirm(
+        "Are you sure you want to reset all your progress? This cannot be undone."
+      )
+    ) {
+      setCompletedItems(new Set());
+    }
+  };
+
   const getOverallProgress = () => {
     if (!tree) return 0;
     const getAllNodes = (node) => [
@@ -359,6 +432,7 @@ export default function MassGuideDetail({ params }) {
       ...node.ingredients.flatMap(getAllNodes),
     ];
     const allNodes = getAllNodes(tree);
+    if (allNodes.length === 0) return 0;
     return (
       (allNodes.filter((n) => completedItems.has(n.id)).length /
         allNodes.length) *
@@ -366,8 +440,7 @@ export default function MassGuideDetail({ params }) {
     );
   };
 
-const getImageUrl = (path) => (path ? `/items/${path}` : "");
-
+  const getImageUrl = (path) => (path ? `/items/${path}` : "");
 
   if (loading) return <div className="p-6 flex justify-center">Loading...</div>;
   if (!item) return <p className="text-center mt-10">Item not found</p>;
@@ -376,6 +449,26 @@ const getImageUrl = (path) => (path ? `/items/${path}` : "");
 
   return (
     <div className="p-6 bg-gradient-to-br min-h-screen">
+      <div className="flex justify-between items-center mb-4">
+        <Button
+          variant="outline"
+          size="sm"
+          className="cursor-pointer"
+          onClick={() => router.back()}
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back
+        </Button>
+
+        <Button
+          size="sm"
+          onClick={handleResetProgress}
+          className="cursor-pointer bg-red-600 hover:bg-red-800  text-white"
+        >
+          <RotateCcw className="w-4 h-4 mr-2" />
+          Reset Progress
+        </Button>
+      </div>
       {/* Header */}
       <div className="mb-10 text-center space-y-4">
         <h1 className="text-4xl font-bold">{item.name} Mass Guide</h1>
@@ -395,38 +488,55 @@ const getImageUrl = (path) => (path ? `/items/${path}` : "");
           "relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-xl shadow-md transition-all duration-300",
           isFullscreen
             ? "fixed inset-0 z-30 h-screen w-screen rounded-none"
-            : "lg:mx-24 h-[800px] flex"
+            : "h-[600px] lg:mx-24 lg:h-[800px] flex" // ✅ Responsive height
         )}
       >
         {/* Dot Pattern background */}
         <DotPattern
           className={cn(
-            "absolute inset-0 opacity-40 pointer-events-none [mask-image:radial-gradient(800px_circle_at_center,white,transparent)]"
+            "absolute inset-0 opacity-40 pointer-events-none",
+            "[mask-image:radial-gradient(circle_at_center,white,transparent)]" // ✅ Responsive mask
           )}
         />
 
-        {/* Controls — now functional inside container */}
-        <div className="absolute top-4 right-6 z-20 flex gap-2 pointer-events-auto">
-          <Button variant="outline" size="sm" onClick={handleZoomOut}>
-            <ZoomOut className="w-4 h-4" />
-          </Button>
-          <Button variant="outline" size="sm" onClick={handleResetZoom}>
-            <RotateCcw className="w-4 h-4" />
-          </Button>
-          <Button variant="outline" size="sm" onClick={handleZoomIn}>
-            <ZoomIn className="w-4 h-4" />
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setIsFullscreen((f) => !f)}
-          >
-            {isFullscreen ? (
-              <Minimize2 className="w-4 h-4" />
-            ) : (
-              <Maximize2 className="w-4 h-4" />
-            )}
-          </Button>
+        {/* ✅ MODIFIED: Responsive Controls Container */}
+        <div className="absolute top-4 left-6 right-6 z-20 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 pointer-events-none">
+          
+          {/* Search Bar */}
+          <div className="relative w-full lg:w-64 pointer-events-auto">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Input
+              type="text"
+              placeholder="Search for an item..."
+              className="pl-9 bg-white/80 w-full"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+
+          {/* Zoom Controls */}
+          <div className="flex gap-2 pointer-events-auto self-end lg:self-auto">
+            <Button variant="outline" size="sm" onClick={handleZoomOut}>
+              <ZoomOut className="w-4 h-4" />
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleResetZoom}>
+              <RotateCcw className="w-4 h-4" />
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleZoomIn}>
+              <ZoomIn className="w-4 h-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsFullscreen((f) => !f)}
+            >
+              {isFullscreen ? (
+                <Minimize2 className="w-4 h-4" />
+              ) : (
+                <Maximize2 className="w-4 h-4" />
+              )}
+            </Button>
+          </div>
         </div>
 
         {/* Zoomable Content */}
@@ -441,6 +551,7 @@ const getImageUrl = (path) => (path ? `/items/${path}` : "");
                 getImageUrl={getImageUrl}
                 completedItems={completedItems}
                 onToggleComplete={handleToggleComplete}
+                searchTerm={searchTerm} // ✅ ADDED: Pass search term
               />
             </div>
           )}
