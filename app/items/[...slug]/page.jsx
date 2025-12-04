@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabaseClient";
 const IMAGEKIT_BASE_URL = "https://ik.imagekit.io/6j61dmdpg/items"
 
 export async function generateMetadata({ params }) {
-  const rawSlug = params.slug ? params.slug.join("/") : "";
+  const rawSlug = params?.slug?.join("/") ?? "";
   const decodedSlug = decodeURIComponent(rawSlug);
 
   const { data: item } = await supabase

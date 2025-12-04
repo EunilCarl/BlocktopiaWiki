@@ -13,17 +13,16 @@ import {
   Minimize2,
   RotateCcw,
   ArrowLeft,
-  Search, // ✅ ADDED: Search Icon
+  Search,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input"; // ✅ ADDED: Input component
+import { Input } from "@/components/ui/input";
 import Panzoom from "@panzoom/panzoom";
 import { DotPattern } from "@/components/magicui/dot-pattern";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 
-/* ------------------ Tree Builder (unchanged) ------------------ */
-// ... (Your buildTree function remains unchanged)
+/* ------------------ Tree Builder ------------------ */
 function buildTree(
   item,
   allItems,
@@ -81,14 +80,13 @@ function buildTree(
   };
 }
 
-/* ------------------ Tree Node (Updated) ------------------ */
-// ... (Paste the updated TreeNode function from step 1 here)
+/* ------------------ Tree Node ------------------ */
 function TreeNode({
   node,
   getImageUrl,
   completedItems,
   onToggleComplete,
-  searchTerm, // ✅ ADDED: Accept search term
+  searchTerm,
 }) {
   const isCompleted = completedItems.has(node.id);
   const canComplete =
@@ -105,7 +103,6 @@ function TreeNode({
           node.ingredients.length) *
         100;
 
-  // ✅ ADDED: Check if this node should be highlighted
   const isHighlighted =
     searchTerm && node.name.toLowerCase().includes(searchTerm.toLowerCase());
 
@@ -122,7 +119,7 @@ function TreeNode({
           relative z-10 transition-all duration-300 hover:shadow-lg
           ${
             canComplete
-              ? "cursor-pointer" // ✅ ADDED: Cursor pointer if clickable
+              ? "cursor-pointer"
               : "cursor-default"
           }
           ${
@@ -134,7 +131,6 @@ function TreeNode({
             canComplete && !isCompleted ? "border-blue-400 shadow-blue-100" : ""
           }
           min-w-32
-          ${/* ✅ ADDED: Highlight style */ ""}
           ${
             isHighlighted
               ? "ring-10 ring-yellow-400 shadow-lg shadow-yellow-400/50"
@@ -219,7 +215,7 @@ function TreeNode({
         </CardContent>
       </Card>
 
-      {/* Connectors (unchanged) */}
+      {/* Connectors */}
       {node.ingredients.length > 0 && (
         <div className="relative mt-6 flex justify-center w-full">
           <svg
@@ -298,7 +294,7 @@ function TreeNode({
                 getImageUrl={getImageUrl}
                 completedItems={completedItems}
                 onToggleComplete={onToggleComplete}
-                searchTerm={searchTerm} // ✅ ADDED: Pass search term recursively
+                searchTerm={searchTerm}
               />
             ))}
           </div>
@@ -308,7 +304,7 @@ function TreeNode({
   );
 }
 
-/* ------------------ Main Page (Updated) ------------------ */
+/* ------------------ Main Page ------------------ */
 export default function MassGuideDetail({ params }) {
   const { id } = use(params);
   const router = useRouter();
@@ -319,7 +315,7 @@ export default function MassGuideDetail({ params }) {
   const [tree, setTree] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState(""); // ✅ ADDED: Search state
+  const [searchTerm, setSearchTerm] = useState("");
   const containerRef = useRef(null);
   const contentRef = useRef(null);
   const panzoomRef = useRef(null);
@@ -370,25 +366,167 @@ export default function MassGuideDetail({ params }) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  /* ---------- Initialize Panzoom ---------- */
-  useEffect(() => {
-    if (!contentRef.current) return;
+/* ---------- Fixed Panzoom Logic ---------- */
+  useEffect(() => {
+    if (!contentRef.current || !containerRef.current || !tree) return;
 
-    const panzoom = Panzoom(contentRef.current, {
-      maxScale: 5,
-      minScale: 0.001,
-      contain: false,
-      startScale: 0.8,
+    const containerEl = containerRef.current;
+    const contentEl = contentRef.current;
+    
+    let isInitialLayout = true;
+
+    containerEl.style.cursor = 'grab';
+
+    const panzoom = Panzoom(contentEl, {
+      maxScale: 5,
+      minScale: 0.1,
+      contain: 'outside',
+      startScale: 1,
+      step: 0.3,
+      noBind: true,
+    });
+    
+    panzoomRef.current = panzoom;
+    
+    // --- START MODIFIED LOGIC ---
+    const centerAndFitTree = (animate = false) => {
+        const containerWidth = containerEl.clientWidth;
+        const containerHeight = containerEl.clientHeight;
+        const contentWidth = contentEl.scrollWidth;
+        const contentHeight = contentEl.scrollHeight;
+
+        if (contentWidth === 0 || containerWidth === 0) {
+            return;
+        }
+
+        // Calculate a scale that fits 85% of the container
+        const scaleX = (containerWidth * 0.85) / contentWidth;
+        const scaleY = (containerHeight * 0.85) / contentHeight;
+        let newScale = Math.min(scaleX, scaleY, 1);
+        newScale = Math.max(newScale, 0.1);
+
+        const scaledWidth = contentWidth * newScale;
+        const scaledHeight = contentHeight * newScale;
+        
+        // Calculate new X/Y to center the scaled content
+        const newX = Math.max(0, (containerWidth - scaledWidth) / 2);
+        const newY = Math.max(0, (containerHeight - scaledHeight) / 2);
+
+        panzoom.zoom(newScale, { animate: animate });
+        panzoom.pan(newX, newY, { animate: animate });
+        panzoom.setOptions({ startScale: newScale });
+    };
+
+    // 1. Initial attempt to center immediately after Panzoom is created
+    // Use setTimeout to ensure the DOM has painted the initial tree structure
+    const initialCenterTimeout = setTimeout(() => {
+        centerAndFitTree();
+    }, 50); // Small delay to allow DOM to measure content
+    
+    // 2. The other initial centering logic is now part of the ResizeObserver below.
+
+    // Event handlers (No changes needed here)
+    // ... (handleWheel, handleDown, handleMove, handleUp) ...
+    const handleWheel = (event) => {
+        event.preventDefault();
+        panzoom.zoomWithWheel(event);
+    };
+    
+    const handleDown = (event) => {
+        containerEl.style.cursor = 'grabbing';
+        panzoom.handleDown(event);
+    };
+    
+    const handleMove = (event) => {
+        panzoom.handleMove(event);
+    };
+    
+    const handleUp = (event) => {
+        containerEl.style.cursor = 'grab';
+        panzoom.handleUp(event);
+    };
+
+    containerEl.addEventListener("wheel", handleWheel, { passive: false });
+    containerEl.addEventListener('pointerdown', handleDown);
+    containerEl.addEventListener('pointermove', handleMove);
+    containerEl.addEventListener('pointerup', handleUp);
+    containerEl.addEventListener('pointercancel', handleUp);
+
+
+    // 3. Optimized ResizeObserver Logic
+    let debounceTimer = null;
+    let lastContainerWidth = containerEl.clientWidth;
+    let lastContainerHeight = containerEl.clientHeight;
+
+    const observer = new ResizeObserver(() => {
+        if (isInitialLayout) {
+            isInitialLayout = false;
+            lastContainerWidth = containerEl.clientWidth;
+            lastContainerHeight = containerEl.clientHeight;
+            return;
+        }
+
+        if (debounceTimer) {
+            clearTimeout(debounceTimer);
+        }
+
+        debounceTimer = setTimeout(() => {
+            if (!containerEl || !contentEl) return;
+
+            const containerWidth = containerEl.clientWidth;
+            const containerHeight = containerEl.clientHeight;
+            
+            if (containerWidth === lastContainerWidth && containerHeight === lastContainerHeight) {
+                return;
+            }
+            
+            lastContainerWidth = containerWidth;
+            lastContainerHeight = containerHeight;
+
+            centerAndFitTree(true); // Recenter with animation on resize
+
+        }, 250);
     });
 
-    containerRef.current?.addEventListener("wheel", panzoom.zoomWithWheel);
-    panzoomRef.current = panzoom;
+    observer.observe(containerEl);
+
+    // 4. Manual layout observer (to handle tree content size change)
+    // We observe the content element itself to react when the tree nodes load/change.
+    const contentObserver = new ResizeObserver((entries) => {
+        // Only run if the initial centering is done and tree has loaded
+        if (entries[0].contentRect.width > 0 && isInitialLayout) {
+            centerAndFitTree(false);
+            isInitialLayout = false; // Mark initial layout as complete
+            
+            // Disconnect content observer after first successful center
+            // to avoid continuous re-centering unless the container changes.
+            contentObserver.disconnect();
+        }
+    });
+    
+    // Start observing the content element
+    contentObserver.observe(contentEl);
+    
+    // --- END MODIFIED LOGIC ---
 
     return () => {
-      containerRef.current?.removeEventListener("wheel", panzoom.zoomWithWheel);
-      panzoom.destroy();
+        clearTimeout(initialCenterTimeout); // Clear the initial center timeout
+        if (debounceTimer) clearTimeout(debounceTimer);
+        observer.disconnect();
+        contentObserver.disconnect(); // Disconnect content observer
+        
+        if (containerEl) { 
+            containerEl.removeEventListener("wheel", handleWheel);
+            containerEl.removeEventListener('pointerdown', handleDown);
+            containerEl.removeEventListener('pointermove', handleMove);
+            containerEl.removeEventListener('pointerup', handleUp);
+            containerEl.removeEventListener('pointercancel', handleUp);
+            containerEl.style.cursor = 'default';
+        }
+        
+        panzoom.destroy();
     };
-  }, [tree]);
+  }, [tree]); // Dependency on 'tree' ensures it runs when the tree data is ready
 
   /* ---------- Save Progress ---------- */
   useEffect(() => {
@@ -401,8 +539,22 @@ export default function MassGuideDetail({ params }) {
   }, [completedItems, storageKey]);
 
   /* ---------- Controls ---------- */
-  const handleZoomIn = () => panzoomRef.current?.zoomIn();
-  const handleZoomOut = () => panzoomRef.current?.zoomOut();
+  const handleZoomIn = () => {
+    if (!panzoomRef.current || !containerRef.current) return;
+    const container = containerRef.current;
+    const centerX = container.clientWidth / 2;
+    const centerY = container.clientHeight / 2;
+    panzoomRef.current.zoomIn({ focal: { x: centerX, y: centerY } });
+  };
+  
+  const handleZoomOut = () => {
+    if (!panzoomRef.current || !containerRef.current) return;
+    const container = containerRef.current;
+    const centerX = container.clientWidth / 2;
+    const centerY = container.clientHeight / 2;
+    panzoomRef.current.zoomOut({ focal: { x: centerX, y: centerY } });
+  };
+  
   const handleResetZoom = () => panzoomRef.current?.reset();
 
   /* ---------- Completion ---------- */
@@ -469,6 +621,7 @@ export default function MassGuideDetail({ params }) {
           Reset Progress
         </Button>
       </div>
+      
       {/* Header */}
       <div className="mb-10 text-center space-y-4">
         <h1 className="text-4xl font-bold">{item.name} Mass Guide</h1>
@@ -481,59 +634,59 @@ export default function MassGuideDetail({ params }) {
         </div>
       </div>
 
-      {/* Controls */}
+      {/* Tree Container */}
       <div
         ref={containerRef}
         className={cn(
           "relative overflow-hidden bg-white/5 backdrop-blur-sm rounded-xl shadow-md transition-all duration-300",
           isFullscreen
-            ? "fixed inset-0 z-30 h-screen w-screen rounded-none"
-            : "h-[600px] lg:mx-24 lg:h-[800px] flex" // ✅ Responsive height
+            ? "fixed inset-0 z-50 h-screen w-screen rounded-none"
+            : "h-[500px] sm:h-[600px] lg:h-[800px] lg:mx-12 xl:mx-24"
         )}
       >
-        {/* Dot Pattern background */}
         <DotPattern
           className={cn(
             "absolute inset-0 opacity-40 pointer-events-none",
-            "[mask-image:radial-gradient(circle_at_center,white,transparent)]" // ✅ Responsive mask
+            "[mask-image:radial-gradient(circle_at_center,white,transparent)]"
           )}
         />
 
-        {/* ✅ MODIFIED: Responsive Controls Container */}
-        <div className="absolute top-4 left-6 right-6 z-20 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 pointer-events-none">
+        {/* Controls */}
+        <div className="absolute top-3 sm:top-4 left-3 sm:left-6 right-3 sm:right-6 z-20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pointer-events-none">
           
           {/* Search Bar */}
-          <div className="relative w-full lg:w-64 pointer-events-auto">
+          <div className="relative w-full sm:w-48 md:w-64 pointer-events-auto">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <Input
               type="text"
-              placeholder="Search for an item..."
-              className="pl-9 bg-white/80 w-full"
+              placeholder="Search items..."
+              className="pl-9 bg-white/90 backdrop-blur-sm w-full text-sm"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
 
           {/* Zoom Controls */}
-          <div className="flex gap-2 pointer-events-auto self-end lg:self-auto">
-            <Button variant="outline" size="sm" onClick={handleZoomOut}>
-              <ZoomOut className="w-4 h-4" />
+          <div className="flex gap-1.5 sm:gap-2 pointer-events-auto self-end sm:self-auto">
+            <Button variant="outline" size="sm" onClick={handleZoomOut} className="h-8 sm:h-9">
+              <ZoomOut className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </Button>
-            <Button variant="outline" size="sm" onClick={handleResetZoom}>
-              <RotateCcw className="w-4 h-4" />
+            <Button variant="outline" size="sm" onClick={handleResetZoom} className="h-8 sm:h-9">
+              <RotateCcw className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </Button>
-            <Button variant="outline" size="sm" onClick={handleZoomIn}>
-              <ZoomIn className="w-4 h-4" />
+            <Button variant="outline" size="sm" onClick={handleZoomIn} className="h-8 sm:h-9">
+              <ZoomIn className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => setIsFullscreen((f) => !f)}
+              className="h-8 sm:h-9"
             >
               {isFullscreen ? (
-                <Minimize2 className="w-4 h-4" />
+                <Minimize2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               ) : (
-                <Maximize2 className="w-4 h-4" />
+                <Maximize2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               )}
             </Button>
           </div>
@@ -542,7 +695,7 @@ export default function MassGuideDetail({ params }) {
         {/* Zoomable Content */}
         <div
           ref={contentRef}
-          className="relative z-10 min-w-max px-20 py-12 select-none"
+          className="relative z-10 min-w-max px-100 sm:px-100 md:px-100 py-150 sm:py-100 select-none"
         >
           {tree && (
             <div className="flex justify-center">
@@ -551,7 +704,7 @@ export default function MassGuideDetail({ params }) {
                 getImageUrl={getImageUrl}
                 completedItems={completedItems}
                 onToggleComplete={handleToggleComplete}
-                searchTerm={searchTerm} // ✅ ADDED: Pass search term
+                searchTerm={searchTerm}
               />
             </div>
           )}

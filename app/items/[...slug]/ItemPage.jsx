@@ -139,10 +139,19 @@ export default function ItemPage({ item }) {
     return matchesSearch && matchesFilter;
   });
 
+const IMAGEKIT_URL_ENDPOINT = "https://ik.imagekit.io/6j61dmdpg"; 
 
-const getImageUrl = (path) => (path ? `/items/${path}` : "");
+const getImageUrl = (path) => {
+  if (!path) return "/logo-v1.webp"; 
 
-  // Get OG image URL with proper size for social previews
+  if (path.startsWith("http")) {
+    return path;
+  }
+
+  return `${IMAGEKIT_URL_ENDPOINT}/items/${path}`;
+};
+
+
   const getOgImage = (path) => {
     if (!path) return "/logo-v1.webp";
     const { data } = supabase.storage.from("items").getPublicUrl(path);
@@ -349,6 +358,7 @@ const getImageUrl = (path) => (path ? `/items/${path}` : "");
           </div>
         </div>
 
+<script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="Unil" data-description="Support me on Buy me a coffee!" data-message="" data-color="#FF813F" data-position="Right" data-x_margin="18" data-y_margin="18"></script>
         <Footer />
       </div>
       <Script id="ld-json" type="application/ld+json">
